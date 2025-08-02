@@ -48,13 +48,13 @@ const Tutorial = () => {
             
             setClonedNode(targetElement.cloneNode(true));
             
-            // Position the bubble after a short delay to ensure it has dimensions
             setTimeout(() => {
                 const bubbleEl = document.getElementById('tutorial-bubble');
                 if (bubbleEl) {
                     const bubbleRect = bubbleEl.getBoundingClientRect();
                     let top, left;
                     const margin = 15;
+                    const viewportPadding = 10;
 
                     switch (currentStep.position) {
                         case 'left':
@@ -71,6 +71,13 @@ const Tutorial = () => {
                             left = 0; top = 0;
                             break;
                     }
+
+                    // Adjust if off-screen
+                    if (left < viewportPadding) left = viewportPadding;
+                    if (top < viewportPadding) top = viewportPadding;
+                    if (left + bubbleRect.width > window.innerWidth - viewportPadding) left = window.innerWidth - bubbleRect.width - viewportPadding;
+                    if (top + bubbleRect.height > window.innerHeight - viewportPadding) top = window.innerHeight - bubbleRect.height - viewportPadding;
+
                     setBubbleStyle({ top: `${top}px`, left: `${left}px` });
                 }
             }, 50);

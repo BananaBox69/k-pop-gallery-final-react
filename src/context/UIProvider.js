@@ -18,7 +18,7 @@ export const UIProvider = ({ children }) => {
     const onNavClick = () => {
         setIsNavScrolling(true);
         // Reduce timeout to match scroll duration and remove perceived delay
-        setTimeout(() => setIsNavScrolling(false), 850); 
+        setTimeout(() => setIsNavScrolling(false), 100); 
     };
 
     const hexToRgb = (hex) => {

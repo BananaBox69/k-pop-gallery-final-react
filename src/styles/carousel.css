@@ -8,7 +8,7 @@
 }
 .swiper-pagination {
     bottom: auto !important;
-    top: 0 !important;
+    top: 0 !important; /* Position pagination at the very top of the swiper container */
 }
 .swiper-pagination-bullet {
     background-color: #fff !important;

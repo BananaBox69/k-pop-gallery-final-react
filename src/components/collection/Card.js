@@ -63,7 +63,7 @@ const Card = ({ card }) => {
     };
 
     return (
-        <div className="group w-56 h-80 perspective-1000 cursor-pointer" onClick={handleCardClick}>
+        <div className="group w-56 h-80 perspective-1000" onClick={handleCardClick}>
             <motion.div
                 className="card-inner w-full h-full"
                 initial={false}
@@ -72,9 +72,7 @@ const Card = ({ card }) => {
             >
                 {/* --- FRONT FACE --- */}
                 <div className="card-face relative">
-                    <div className="absolute inset-0 bg-cover bg-center rounded-xl" style={{ backgroundImage: `url(${card.imageUrl})` }}>
-                        <div className="card-reflection"></div>
-                    </div>
+                    <div className="absolute inset-0 bg-cover bg-center rounded-xl" style={{ backgroundImage: `url(${card.imageUrl})` }}></div>
                     <div className="sheen-overlay" />
                     {sparkleColor && <div className="sparkle-container opacity-0 group-hover:opacity-100 transition-opacity duration-500"><Sparkles color={sparkleColor} /></div>}
                     <div className="card-id-overlay absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded-full">
@@ -92,16 +90,16 @@ const Card = ({ card }) => {
                     <button onClick={handleFlipClick} className="flip-button">
                         <CgSync size={20} />
                     </button>
+                    <div className="card-reflection"></div>
                 </div>
 
                 {/* --- BACK FACE --- */}
                 <div className="card-face card-face-back bg-gray-800 relative">
-                     <div className="absolute inset-0 bg-cover bg-center rounded-xl" style={{ backgroundImage: `url(${card.backImage || 'https://placehold.co/220x341/1e1e1e/ffffff?text=Card+Back'})` }}>
-                        <div className="card-reflection"></div>
-                    </div>
+                     <div className="absolute inset-0 bg-cover bg-center rounded-xl" style={{ backgroundImage: `url(${card.backImage || 'https://placehold.co/220x341/1e1e1e/ffffff?text=Card+Back'})` }}></div>
                      <button onClick={handleFlipClick} className="flip-button opacity-100">
                         <CgSync size={20} />
                     </button>
+                    <div className="card-reflection"></div>
                 </div>
             </motion.div>
         </div>

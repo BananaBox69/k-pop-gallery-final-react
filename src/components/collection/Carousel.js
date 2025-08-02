@@ -17,7 +17,7 @@ const Carousel = ({ cards, activeIndex, setActiveIndex }) => {
     }
     
     return (
-        <div className="w-full h-[460px] pb-8"> {/* Add padding-bottom for pagination */}
+        <div className="relative w-full h-[460px] pt-12"> {/* Increased top padding */}
             <Swiper
                 effect={'coverflow'}
                 grabCursor={true}

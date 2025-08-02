@@ -23,6 +23,8 @@ const FloatingBasket = () => {
         setIsConfirmOpen(false);
     };
 
+    const buttonClasses = "text-white px-5 py-2 text-sm rounded-full font-semibold hover:bg-opacity-90 transition-all";
+
     return (
         <>
             <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-11/12 max-w-lg bg-gray-800/80 backdrop-blur-md border border-gray-700 rounded-full shadow-lg z-40 flex items-center justify-between px-3 md:px-6 py-3 animate-fade-in-up">
@@ -34,14 +36,15 @@ const FloatingBasket = () => {
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setIsConfirmOpen(true)}
-                        style={{ backgroundColor: activeColor, transition: 'background-color 0.5s ease' }}
-                        className="text-white px-5 py-2 text-sm rounded-full font-semibold hover:bg-opacity-90 transition-all"
+                        style={{ backgroundColor: activeColor }}
+                        className={buttonClasses}
                     >
                         Empty Basket
                     </button>
-                    <button 
+                    <button
                         onClick={() => setIsModalOpen(true)}
-                        className="bg-[var(--dynamic-ui-color)] text-white px-5 py-2 rounded-full font-semibold hover:bg-opacity-90 transition-all"
+                        style={{ backgroundColor: activeColor }}
+                        className={buttonClasses}
                     >
                         View Basket
                     </button>

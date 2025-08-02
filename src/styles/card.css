@@ -50,16 +50,17 @@
     position: relative;
     width: 100%;
     height: 100%;
-    transition: transform 0.4s; /* Faster flip */
+    transition: transform 0.4s;
     transform-style: preserve-3d;
 }
 .card-face {
     position: absolute;
     width: 100%;
     height: 100%;
-    -webkit-backface-visibility: hidden; /* Safari */
+    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     border-radius: 1rem;
+    overflow: hidden; /* This helps contain elements during flip */
 }
 .card-face-back {
     transform: rotateY(180deg);
@@ -92,10 +93,20 @@
     width: 100%;
     height: 100%;
     background: inherit;
+    background-size: cover;
+    background-position: center;
     transform: scaleY(-1);
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.15), transparent 40%);
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.15), transparent 40%);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.25), transparent 40%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.25), transparent 40%);
+    z-index: -1;
 }
+.card-face-front .card-reflection {
+    background-image: var(--bg-image);
+}
+.card-face-back .card-reflection {
+    background-image: var(--bg-image-back);
+}
+
 
 /* --- CARD SHEEN --- */
 .swiper-slide-active .sheen-overlay,
