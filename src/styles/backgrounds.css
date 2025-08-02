@@ -1,0 +1,80 @@
+/* --- HEADER PERSPECTIVE GRID --- */
+.perspective-container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    perspective: 1000px;
+    z-index: -1;
+    overflow: hidden;
+}
+.tile-grid {
+    position: absolute;
+    width: 100%;
+    max-width: 1200px;
+    height: 150%;
+    left: 50%;
+    transform-style: preserve-3d;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+.tile-grid::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+    animation: sweep 5s linear infinite;
+}
+.floor {
+    bottom: 27.5%;
+    transform: translateX(-50%) rotateX(86deg);
+}
+.ceiling {
+    top: 27.5%;
+    transform: translateX(-50%) rotateX(-86deg);
+}
+
+/* --- MEMBER SECTION ROOM --- */
+.room-backdrop {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    perspective: 2000px;
+    perspective-origin: center center;
+}
+.room-backdrop-wall {
+    position: absolute;
+    top: 10%; bottom: 10%; left: 20%; right: 20%;
+    background-color: var(--member-color);
+    background-image:
+        linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)),
+        repeating-linear-gradient(90deg, hsla(0,0%,100%,0.0) 0, hsla(0,0%,100%,0.0) 100px, hsla(0,0%,100%,0.02) 100px, hsla(0,0%,100%,0.02) 101px);
+    opacity: 0.5;
+    -webkit-mask-image: linear-gradient(to top, transparent, black 20%, black 80%, transparent);
+    mask-image: linear-gradient(to top, transparent, black 20%, black 80%, transparent);
+}
+.room-backdrop::before,
+.room-backdrop::after {
+    content: '';
+    position: absolute;
+    top: 10%; bottom: 10%;
+    width: 50%;
+    background-color: var(--member-color);
+    background-image:
+        linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.95)),
+        repeating-linear-gradient(90deg, hsla(0,0%,100%,0.0) 0, hsla(0,0%,100%,0.0) 100px, hsla(0,0%,100%,0.02) 100px, hsla(0,0%,100%,0.02) 101px);
+    opacity: 0.5;
+    -webkit-mask-image: linear-gradient(to top, transparent 5%, black 25%, black 75%, transparent 95%);
+    mask-image: linear-gradient(to top, transparent 5%, black 25%, black 75%, transparent 95%);
+}
+.room-backdrop::before {
+    left: -20%;
+    transform-origin: right center;
+    transform: rotateY(70deg);
+}
+.room-backdrop::after {
+    right: -20%;
+    transform-origin: left center;
+    transform: rotateY(-70deg);
+}

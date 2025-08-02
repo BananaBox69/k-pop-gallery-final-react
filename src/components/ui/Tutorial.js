@@ -1,0 +1,117 @@
+import React, { useState, useEffect, useRef } from 'react';
+
+const tutorialSteps = [
+    {
+        elementId: 'info-bubble',
+        text: "Click here to learn about the buying procedure and rules.",
+        position: 'left'
+    },
+    {
+        elementId: 'filter-bubble',
+        text: "You can filter for specific cards here. Filters are unique for each member.",
+        position: 'left'
+    },
+];
+
+const Tutorial = () => {
+    const [stepIndex, setStepIndex] = useState(-1);
+    const [cloneStyle, setCloneStyle] = useState({});
+    const [bubbleStyle, setBubbleStyle] = useState({});
+    const [pointerClass, setPointerClass] = useState('');
+    const [clonedNode, setClonedNode] = useState(null);
+
+    useEffect(() => {
+        const hasSeenTutorial = localStorage.getItem('photocard_tutorial_seen_v3');
+        if (hasSeenTutorial !== 'true') {
+            // Delay start to allow UI to render
+            setTimeout(() => setStepIndex(0), 500);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (stepIndex < 0 || stepIndex >= tutorialSteps.length) {
+            setClonedNode(null);
+            return;
+        }
+
+        const currentStep = tutorialSteps[stepIndex];
+        const targetElement = document.getElementById(currentStep.elementId);
+
+        if (targetElement) {
+            const rect = targetElement.getBoundingClientRect();
+            setCloneStyle({
+                top: `${rect.top}px`,
+                left: `${rect.left}px`,
+                width: `${rect.width}px`,
+                height: `${rect.height}px`,
+            });
+            
+            setClonedNode(targetElement.cloneNode(true));
+            
+            // Position the bubble after a short delay to ensure it has dimensions
+            setTimeout(() => {
+                const bubbleEl = document.getElementById('tutorial-bubble');
+                if (bubbleEl) {
+                    const bubbleRect = bubbleEl.getBoundingClientRect();
+                    let top, left;
+                    const margin = 15;
+
+                    switch (currentStep.position) {
+                        case 'left':
+                            left = rect.left - bubbleRect.width - margin;
+                            top = rect.top + rect.height / 2 - bubbleRect.height / 2;
+                            setPointerClass('right');
+                            break;
+                        case 'right':
+                            left = rect.right + margin;
+                            top = rect.top + rect.height / 2 - bubbleRect.height / 2;
+                            setPointerClass('left');
+                            break;
+                        default:
+                            left = 0; top = 0;
+                            break;
+                    }
+                    setBubbleStyle({ top: `${top}px`, left: `${left}px` });
+                }
+            }, 50);
+        }
+
+    }, [stepIndex]);
+
+    const nextStep = () => {
+        setStepIndex(prev => prev + 1);
+    };
+
+    const closeTutorial = () => {
+        localStorage.setItem('photocard_tutorial_seen_v3', 'true');
+        setStepIndex(-1);
+    };
+
+    const isVisible = stepIndex >= 0 && stepIndex < tutorialSteps.length;
+
+    return (
+        <div className={`tutorial-overlay ${isVisible ? 'visible' : ''}`}>
+            <div className="tutorial-clone-container">
+                {clonedNode && (
+                    <div style={cloneStyle} dangerouslySetInnerHTML={{ __html: clonedNode.outerHTML }} />
+                )}
+            </div>
+            <div id="tutorial-bubble" className={`tutorial-bubble ${isVisible ? 'visible' : ''}`} style={bubbleStyle}>
+                <div className={`tutorial-bubble-pointer ${pointerClass}`}></div>
+                <p className="mb-4">{tutorialSteps[stepIndex]?.text}</p>
+                <div className="flex justify-end gap-2">
+                    {stepIndex < tutorialSteps.length - 1 ? (
+                        <>
+                            <button onClick={closeTutorial} className="bg-gray-600 text-white py-1 px-3 rounded-full text-sm">Skip</button>
+                            <button onClick={nextStep} className="bg-blue-600 text-white py-1 px-3 rounded-full text-sm">Next</button>
+                        </>
+                    ) : (
+                        <button onClick={closeTutorial} className="bg-green-600 text-white py-1 px-3 rounded-full text-sm">Got it!</button>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Tutorial;
