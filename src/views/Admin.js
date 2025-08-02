@@ -21,7 +21,7 @@ const Admin = () => {
     const [confirmAction, setConfirmAction] = useState(null);
     const [selectedCards, setSelectedCards] = useState(new Set());
     
-    const [filters, setFilters] = useState({ group: 'All', member: 'All', status: 'All', searchTerm: '' });
+    const [filters, setFilters] = useState({ group: 'All', member: 'All', status: 'available', searchTerm: '' });
     const [sort, setSort] = useState({ by: 'default', order: 'asc' });
 
     const handleFilterChange = (e) => {

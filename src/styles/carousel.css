@@ -7,8 +7,8 @@
     mask-image: linear-gradient(to right, transparent, black 25%, black 75%, transparent);
 }
 .swiper-pagination {
-    bottom: 1rem !important; /* Move to bottom */
-    top: auto !important;
+    bottom: auto !important;
+    top: 0 !important;
 }
 .swiper-pagination-bullet {
     background-color: #fff !important;

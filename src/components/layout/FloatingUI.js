@@ -27,9 +27,10 @@ const FloatingUI = () => {
         <>
             <div className="fixed bottom-4 right-4 flex flex-col gap-4 z-40">
                 <button
+                    id="filter-bubble"
                     onClick={() => setIsSidebarOpen(true)}
                     style={{ backgroundColor: activeColor, transition: 'background-color 0.5s ease' }}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 ${activeSectionId ? 'opacity-100 scale-100' : 'opacity-0 scale-0 pointer-events-none'}`}
+                    className={`w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 ${activeSectionId && activeSectionId !== 'header' ? 'opacity-100 scale-100' : 'opacity-0 scale-0 pointer-events-none'}`}
                     disabled={!activeSectionId}
                 >
                     <FaFilter size={24} />
@@ -42,6 +43,7 @@ const FloatingUI = () => {
                     <FaShieldAlt size={24} />
                 </button>
                 <button 
+                    id="info-bubble"
                     onClick={() => setInfoModalOpen(true)} // Open the info modal on click
                     style={{ backgroundColor: activeColor, transition: 'background-color 0.5s ease' }}
                     className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg"
