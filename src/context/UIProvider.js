@@ -5,8 +5,9 @@ export const useUI = () => useContext(UIContext);
 
 export const UIProvider = ({ children }) => {
     const [activeColor, setActiveColor] = useState('#777');
-    const [activeGroupColor, setActiveGroupColor] = useState('#777'); // New state for group color
+    const [activeGroupColor, setActiveGroupColor] = useState('#777');
     const [isNavScrolling, setIsNavScrolling] = useState(false);
+    const [isBlurOverlayActive, setIsBlurOverlayActive] = useState(false); // New state for blur
 
     useEffect(() => {
         document.documentElement.style.setProperty('--dynamic-ui-color', activeColor);
@@ -33,10 +34,12 @@ export const UIProvider = ({ children }) => {
     const value = {
         activeColor,
         setActiveColor,
-        activeGroupColor,      // Expose new state and setter
+        activeGroupColor,
         setActiveGroupColor,
         isNavScrolling,
         onNavClick,
+        isBlurOverlayActive,      // Expose state and setter
+        setIsBlurOverlayActive,
     };
 
     return (

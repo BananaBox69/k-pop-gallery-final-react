@@ -1,0 +1,6 @@
+/* This class is controlled by the UIProvider to blur the main content */
+.content-blurred {
+    filter: blur(5px);
+    transition: filter 0.3s ease-in-out;
+    /* pointer-events: none; - We'll let React handle this for better control */
+}

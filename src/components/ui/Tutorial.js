@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useUI } from '../../context/UIProvider';
 
 const tutorialSteps = [
     {
@@ -14,22 +15,33 @@ const tutorialSteps = [
 ];
 
 const Tutorial = () => {
+    const { setIsBlurOverlayActive } = useUI();
     const [stepIndex, setStepIndex] = useState(-1);
     const [cloneStyle, setCloneStyle] = useState({});
     const [bubbleStyle, setBubbleStyle] = useState({});
     const [pointerClass, setPointerClass] = useState('');
     const [clonedNode, setClonedNode] = useState(null);
 
+    const isVisible = stepIndex >= 0 && stepIndex < tutorialSteps.length;
+
     useEffect(() => {
         const hasSeenTutorial = localStorage.getItem('photocard_tutorial_seen_v3');
-        if (hasSeenTutorial !== 'true') {
-            // Delay start to allow UI to render
+        const hasAcknowledgedDisclaimer = localStorage.getItem('disclaimerAcknowledged_v2') === 'true';
+        if (hasSeenTutorial !== 'true' && hasAcknowledgedDisclaimer) {
             setTimeout(() => setStepIndex(0), 500);
         }
     }, []);
+    
+    useEffect(() => {
+        setIsBlurOverlayActive(isVisible);
+        
+        return () => {
+            if(isVisible) setIsBlurOverlayActive(false);
+        }
+    }, [isVisible, setIsBlurOverlayActive]);
 
     useEffect(() => {
-        if (stepIndex < 0 || stepIndex >= tutorialSteps.length) {
+        if (!isVisible) {
             setClonedNode(null);
             return;
         }
@@ -72,7 +84,6 @@ const Tutorial = () => {
                             break;
                     }
 
-                    // Adjust if off-screen
                     if (left < viewportPadding) left = viewportPadding;
                     if (top < viewportPadding) top = viewportPadding;
                     if (left + bubbleRect.width > window.innerWidth - viewportPadding) left = window.innerWidth - bubbleRect.width - viewportPadding;
@@ -83,7 +94,7 @@ const Tutorial = () => {
             }, 50);
         }
 
-    }, [stepIndex]);
+    }, [stepIndex, isVisible]);
 
     const nextStep = () => {
         setStepIndex(prev => prev + 1);
@@ -93,8 +104,6 @@ const Tutorial = () => {
         localStorage.setItem('photocard_tutorial_seen_v3', 'true');
         setStepIndex(-1);
     };
-
-    const isVisible = stepIndex >= 0 && stepIndex < tutorialSteps.length;
 
     return (
         <div className={`tutorial-overlay ${isVisible ? 'visible' : ''}`}>

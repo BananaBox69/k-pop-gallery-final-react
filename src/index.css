@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('./styles/main.css'); 
 @import url('./styles/base.css');
 @import url('./styles/animations.css');
 @import url('./styles/backgrounds.css');

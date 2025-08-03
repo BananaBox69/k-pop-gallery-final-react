@@ -15,7 +15,7 @@ import { config } from '../config/appConfig';
 
 const Gallery = () => {
     const { cards, siteContent, metadata, loading } = useContext(AppContext);
-    const { isNavScrolling } = useUI();
+    const { isNavScrolling, isBlurOverlayActive } = useUI(); // Get the blur state
     const [showDisclaimer, setShowDisclaimer] = useState(false);
 
     useEffect(() => {
@@ -102,46 +102,51 @@ const Gallery = () => {
     if (loading) return <Loader />;
 
     return (
-        <div id="scroll-container" className={`scroll-snap-container ${isNavScrolling ? 'no-snap' : ''}`}>
+        <div id="gallery-container" className={`${isBlurOverlayActive ? 'content-blurred' : ''}`}>
+            <div id="scroll-container" className={`scroll-snap-container ${isNavScrolling ? 'no-snap' : ''}`}>
+                <Header nextSectionColor={renderedSections[0]?.nextSectionColor} />
+
+                {renderedSections.slice(1).map((section) => {
+                     if (section.type === 'group') {
+                         return (
+                             <GroupIntro
+                                 key={section.id}
+                                 id={section.id}
+                                 groupName={section.name}
+                                 subtitle={siteContent.groupSubtitles?.[section.name]}
+                                 bannerUrl={siteContent.groupBanners?.[section.name]}
+                                 logoUrl={metadata.groupLogos?.[section.name]}
+                                 nextSectionColor={section.nextSectionColor}
+                             />
+                         );
+                     }
+                     if (section.type === 'member') {
+                         const memberCards = groupedData[section.group]?.[section.name];
+                         if (!memberCards) return null;
+                         return (
+                             <MemberSection
+                                 key={section.id}
+                                 sectionId={section.id}
+                                 groupName={section.group}
+                                 memberName={section.name}
+                                 cards={memberCards}
+                                 nextSectionColor={section.nextSectionColor}
+                             />
+                         );
+                     }
+                     return null;
+                })}
+            </div>
+
+            {/* UI Overlays */}
             <FloatingUI />
             <FloatingNav sections={navSections} />
             <FloatingBasket />
-            <DisclaimerModal isOpen={showDisclaimer} onAcknowledge={handleAcknowledge} />
             <FilterSidebar />
+            
+            {/* These Modals will control the blur */}
+            <DisclaimerModal isOpen={showDisclaimer} onAcknowledge={handleAcknowledge} />
             <Tutorial />
-
-            <Header nextSectionColor={renderedSections[0]?.nextSectionColor} />
-
-            {renderedSections.slice(1).map((section) => {
-                 if (section.type === 'group') {
-                     return (
-                         <GroupIntro
-                             key={section.id}
-                             id={section.id}
-                             groupName={section.name}
-                             subtitle={siteContent.groupSubtitles?.[section.name]}
-                             bannerUrl={siteContent.groupBanners?.[section.name]}
-                             logoUrl={metadata.groupLogos?.[section.name]}
-                             nextSectionColor={section.nextSectionColor}
-                         />
-                     );
-                 }
-                 if (section.type === 'member') {
-                     const memberCards = groupedData[section.group]?.[section.name];
-                     if (!memberCards) return null;
-                     return (
-                         <MemberSection
-                             key={section.id}
-                             sectionId={section.id}
-                             groupName={section.group}
-                             memberName={section.name}
-                             cards={memberCards}
-                             nextSectionColor={section.nextSectionColor}
-                         />
-                     );
-                 }
-                 return null;
-            })}
         </div>
     );
 };
