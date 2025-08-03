@@ -3,31 +3,7 @@ import { motion } from 'framer-motion';
 import { CgSync } from 'react-icons/cg';
 import { FaHeart } from 'react-icons/fa';
 import { useCart } from '../../context/CartProvider';
-
-const Sparkles = ({ color }) => {
-    const numSparkles = color === 'gold' ? 40 : 20;
-    const shadow1 = color === 'gold' ? 'rgba(255,215,0,0.7)' : 'rgba(255,255,255,0.4)';
-    const shadow2 = color === 'gold' ? 'rgba(255,215,0,0.4)' : 'rgba(255,255,255,0.4)';
-
-    return Array.from({ length: numSparkles }).map((_, i) => (
-        <div
-            key={i}
-            className="sparkle"
-            style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                width: `${Math.random() * 3 + 1}px`,
-                height: `${Math.random() * 3 + 1}px`,
-                animationDelay: `${Math.random() * 0.8}s`,
-                '--sparkle-color': color,
-                '--sparkle-color-shadow-1': shadow1,
-                '--sparkle-color-shadow-2': shadow2,
-                '--sparkle-end-x': `${(Math.random() * 2 - 1) * 70}px`,
-                '--sparkle-end-y': `${(Math.random() * 2 - 1) * 70}px`,
-            }}
-        />
-    ));
-};
+import Sparkles from './Sparkles';
 
 const Card = ({ card }) => {
     const [isFlipped, setIsFlipped] = useState(false);
@@ -71,7 +47,10 @@ const Card = ({ card }) => {
                 transition={{ duration: 0.4 }}
             >
                 {/* --- FRONT FACE --- */}
-                <div className="card-face absolute w-full h-full">
+                <div 
+                    className="card-face card-face-front absolute w-full h-full"
+                    style={{'--bg-image': `url(${card.imageUrl})`}}
+                >
                     <div className="absolute inset-0 bg-cover bg-center rounded-xl" style={{ backgroundImage: `url(${card.imageUrl})` }}></div>
                     <div className="sheen-overlay" />
                     {sparkleColor && <div className="sparkle-container opacity-0 group-hover:opacity-100 transition-opacity duration-500"><Sparkles color={sparkleColor} /></div>}
@@ -94,7 +73,10 @@ const Card = ({ card }) => {
                 </div>
 
                 {/* --- BACK FACE --- */}
-                <div className="card-face card-face-back bg-gray-800 absolute w-full h-full">
+                <div 
+                    className="card-face card-face-back bg-gray-800 absolute w-full h-full"
+                    style={{'--bg-image-back': `url(${card.backImage || 'https://placehold.co/220x341/1e1e1e/ffffff?text=Card+Back'})`}}
+                >
                      <div className="absolute inset-0 bg-cover bg-center rounded-xl" style={{ backgroundImage: `url(${card.backImage || 'https://placehold.co/220x341/1e1e1e/ffffff?text=Card+Back'})` }}></div>
                      <button onClick={handleFlipClick} className="flip-button opacity-100">
                         <CgSync size={20} />
