@@ -1,20 +1,40 @@
 /* --- CAROUSEL IMPROVEMENTS --- */
-.swiper-slide {
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 460px; /* Increased height to accommodate reflection */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* We clip the container, but not the items inside */
+    cursor: grab;
+}
+.carousel-container:active {
+    cursor: grabbing;
+}
+
+.carousel-track {
+    display: flex;
+    align-items: center;
+    height: 320px; /* Height of the card itself */
+}
+
+.carousel-item {
+    position: relative;
+    width: 224px; /* Card width */
+    height: 320px; /* Card height */
+    margin-right: 32px; /* Space between cards */
+    flex-shrink: 0;
     transform-style: preserve-3d;
+    -webkit-tap-highlight-color: transparent; /* Removes blue tap highlight on mobile */
 }
-.carousel-mask {
-    -webkit-mask-image: linear-gradient(to right, transparent, black 25%, black 75%, transparent);
-    mask-image: linear-gradient(to right, transparent, black 25%, black 75%, transparent);
-}
-.swiper-pagination {
-    bottom: 20px !important; /* Move pagination to the bottom */
-    top: auto !important;
-}
-.swiper-pagination-bullet {
-    background-color: #fff !important;
-    opacity: 0.5 !important;
-}
+
+/* --- Remove old Swiper styles --- */
+.swiper-slide,
+.carousel-mask,
+.swiper-pagination,
+.swiper-pagination-bullet,
 .swiper-pagination-bullet-active {
-    background-color: var(--dynamic-ui-color) !important;
-    opacity: 1 !important;
+    display: none;
 }

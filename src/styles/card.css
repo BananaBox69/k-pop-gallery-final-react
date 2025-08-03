@@ -60,7 +60,8 @@
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     border-radius: 1rem;
-    overflow: visible; /* MODIFIED: This was 'hidden' and was clipping the reflection. */
+    /* This is the key change that allows the reflection to be seen */
+    overflow: visible; 
 }
 .card-face-back {
     transform: rotateY(180deg);
@@ -88,7 +89,7 @@
 .card-reflection {
     content: '';
     position: absolute;
-    bottom: -100%;
+    bottom: -100%; /* Positions the reflection below the card */
     left: 0;
     width: 100%;
     height: 100%;
@@ -108,12 +109,12 @@
 
 
 /* --- CARD SHEEN --- */
-.swiper-slide-active .sheen-overlay,
-.swiper-slide-next .sheen-overlay,
-.swiper-slide-prev .sheen-overlay {
-    opacity: 1;
+/* The sheen effect is now controlled by the activeIndex state in JS */
+.carousel-item .sheen-overlay {
+    opacity: 0.3;
     animation: cardSheen 3s infinite linear;
 }
+
 .sheen-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
