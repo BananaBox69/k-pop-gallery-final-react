@@ -41,8 +41,13 @@ const Gallery = () => {
 
     const renderedSections = useMemo(() => {
         if (!metadata.groupOrder) return [];
-        const sections = [{ type: 'group', name: 'Home', id: 'header', color: config.colors[metadata.groupOrder[0]]?.group || '#777'}];
-        metadata.groupOrder.forEach((groupName, groupIndex) => {
+        
+        const sections = [];
+        
+        // Add Header section placeholder
+        sections.push({ type: 'header', id: 'header' });
+
+        metadata.groupOrder.forEach(groupName => {
             const memberSections = [];
             let groupHasCards = false;
             
@@ -73,11 +78,11 @@ const Gallery = () => {
         // Add next section color to each section
         return sections.map((section, index) => {
             const nextSection = sections[index + 1];
-            let nextColor = '#777'; // Default color
+            let nextColor = '#777'; // Default color for the very last section's arrow
             if (nextSection) {
                 if (nextSection.type === 'group') {
                     nextColor = config.colors[nextSection.name]?.group;
-                } else {
+                } else { // type is 'member'
                     nextColor = config.colors[nextSection.group]?.[nextSection.name];
                 }
             }
@@ -85,13 +90,21 @@ const Gallery = () => {
         });
 
     }, [groupedData, metadata]);
+    
+    // Create a separate list for the Nav since it needs slightly different data
+    const navSections = useMemo(() => {
+        const homeSection = { type: 'group', name: 'Home', id: 'header' };
+        const otherSections = renderedSections.filter(s => s.type !== 'header');
+        return [homeSection, ...otherSections];
+    }, [renderedSections]);
+
 
     if (loading) return <Loader />;
 
     return (
         <div id="scroll-container" className={`scroll-snap-container ${isNavScrolling ? 'no-snap' : ''}`}>
             <FloatingUI />
-            <FloatingNav sections={renderedSections} />
+            <FloatingNav sections={navSections} />
             <FloatingBasket />
             <DisclaimerModal isOpen={showDisclaimer} onAcknowledge={handleAcknowledge} />
             <FilterSidebar />
@@ -99,7 +112,7 @@ const Gallery = () => {
 
             <Header nextSectionColor={renderedSections[0]?.nextSectionColor} />
 
-            {renderedSections.slice(1).map((section, index) => {
+            {renderedSections.slice(1).map((section) => {
                  if (section.type === 'group') {
                      return (
                          <GroupIntro

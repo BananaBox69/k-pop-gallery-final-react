@@ -21,12 +21,43 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
 
     const currentFilters = getFiltersForSection(sectionId);
 
-    const filteredCards = useMemo(() => cards.filter(card => {
-        // ... (filtering logic remains the same) ...
-    }), [cards, currentFilters]);
+    const filteredCards = useMemo(() => {
+        // If no cards are passed, return an empty array immediately.
+        if (!cards || cards.length === 0) {
+            return [];
+        }
+        
+        return cards.filter(card => {
+            const { searchTerm, album, version, tags } = currentFilters;
+
+            // Search Term Filter
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                const searchableText = `${card.album || ''} ${card.version || card.description || ''} ${card.id || ''}`.toLowerCase();
+                if (!searchableText.includes(term)) return false;
+            }
+
+            // Album Filter
+            if (album !== 'All' && card.album !== album) return false;
+
+            // Version Filter
+            if (version !== 'All' && (card.version || card.description) !== version) return false;
+
+            // Tags Filter
+            if (tags.size > 0) {
+                const isNew = card.dateAdded && (Date.now() - card.dateAdded.getTime()) < 7 * 24 * 60 * 60 * 1000;
+                if (tags.has('new') && !isNew) return false;
+                if (tags.has('rare') && !card.isRare) return false;
+                if (tags.has('sale') && card.discount !== 10) return false;
+                if (tags.has('super-sale') && card.discount !== 20) return false;
+            }
+
+            return true;
+        });
+    }, [cards, currentFilters]);
 
     const [activeIndex, setActiveIndex] = useState(0);
-    const [activeCard, setActiveCard] = useState(filteredCards[0] || null);
+    const [activeCard, setActiveCard] = useState(null);
 
     const quote = siteContent.memberQuotes?.[groupName]?.[memberName];
     const signatureUrl = metadata.memberSignatures?.[groupName]?.[memberName];
@@ -37,17 +68,21 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
         if (isInView) {
             setActiveSectionId(sectionId);
             setActiveColor(memberColor);
-            setActiveGroupColor(groupColor); // Also set the active group color
+            setActiveGroupColor(groupColor);
         }
     }, [isInView, sectionId, memberColor, groupColor, setActiveSectionId, setActiveColor, setActiveGroupColor]);
 
     useEffect(() => {
+        // When filtered cards change, reset the active index and update the active card.
         setActiveIndex(0);
+        setActiveCard(filteredCards[0] || null);
     }, [filteredCards]);
-
+    
     useEffect(() => {
+        // When only the index changes, update the active card.
         setActiveCard(filteredCards[activeIndex] || null);
     }, [activeIndex, filteredCards]);
+
 
     const finalPrice = useMemo(() => {
         return activeCard ? calculateDiscountedPrice(activeCard.price, activeCard.discount) : 0;
@@ -66,7 +101,6 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
         }
     };
     
-    // Define button style based on card status and whether it's in the basket
     const getButtonStyle = () => {
         if (!activeCard) return { backgroundColor: '#555', cursor: 'not-allowed' };
         if (isCardInBasket) {

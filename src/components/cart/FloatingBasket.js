@@ -8,7 +8,7 @@ import ConfirmationModal from '../admin/ConfirmationModal';
 
 const FloatingBasket = () => {
     const { basket, itemCount, clearBasket } = useCart();
-    const { activeGroupColor } = useUI(); // Use activeGroupColor here
+    const { activeGroupColor } = useUI();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
@@ -36,14 +36,14 @@ const FloatingBasket = () => {
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setIsConfirmOpen(true)}
-                        style={{ backgroundColor: activeGroupColor }} // Apply group color
+                        style={{ backgroundColor: activeGroupColor }}
                         className={buttonClasses}
                     >
                         Empty Basket
                     </button>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        style={{ backgroundColor: activeGroupColor }} // Apply group color
+                        style={{ backgroundColor: activeGroupColor }}
                         className={buttonClasses}
                     >
                         View Basket
