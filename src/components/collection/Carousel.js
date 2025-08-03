@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import { motion, useAnimate } from 'framer-motion';
 import Card from './Card';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 
@@ -9,23 +9,31 @@ const CARD_TOTAL_WIDTH = CARD_WIDTH + CARD_MARGIN;
 
 const Carousel = ({ cards, onSlideChange }) => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const controls = useAnimation();
+  // useAnimate provides a ref (`scope`) and an `animate` function
+  const [scope, animate] = useAnimate();
 
   // This effect runs whenever the active card changes.
   // It tells the carousel track to animate to the correct position.
   useEffect(() => {
     onSlideChange(cards[activeIndex] || null);
-    controls.start({
+
+    // Animate the element with the `scope` ref
+    animate(scope.current, {
       x: -activeIndex * CARD_TOTAL_WIDTH,
-      transition: { type: 'spring', stiffness: 300, damping: 40 },
+    }, {
+      type: 'spring',
+      stiffness: 300,
+      damping: 40
     });
-  }, [activeIndex, cards, onSlideChange, controls]);
+  }, [activeIndex, cards, onSlideChange, animate, scope]);
 
   // This handles cases where the card list changes (e.g., due to filtering).
-  // It prevents the carousel from being stuck on an index that no longer exists.
   useEffect(() => {
     if (activeIndex >= cards.length && cards.length > 0) {
       setActiveIndex(cards.length - 1);
+    } else if (cards.length > 0 && !cards[activeIndex]) {
+      // If the list is not empty but the active index is invalid, reset to 0
+      setActiveIndex(0);
     }
   }, [cards, activeIndex]);
 
@@ -36,6 +44,22 @@ const Carousel = ({ cards, onSlideChange }) => {
 
   const goToNext = () => {
     setActiveIndex((prev) => (prev < cards.length - 1 ? prev + 1 : prev));
+  };
+  
+  const handleDragEnd = (event, info) => {
+    const offset = info.offset.x;
+    const velocity = info.velocity.x;
+
+    if (Math.abs(offset) > CARD_WIDTH / 2 || Math.abs(velocity) > 500) {
+      if (offset < 0 || velocity < 0) {
+        goToNext();
+      } else {
+        goToPrev();
+      }
+    } else {
+      // Snap back to the current slide if not dragged far enough
+      animate(scope.current, { x: -activeIndex * CARD_TOTAL_WIDTH }, { type: 'spring', stiffness: 500, damping: 50 });
+    }
   };
 
   if (!cards || cards.length === 0) {
@@ -49,37 +73,14 @@ const Carousel = ({ cards, onSlideChange }) => {
   return (
     <div className="carousel-wrapper">
       <motion.div
+        ref={scope} // Attach the scope ref here
         className="carousel-track"
-        animate={controls}
-        // This allows dragging the carousel
         drag="x"
         dragConstraints={{
           left: -(cards.length - 1) * CARD_TOTAL_WIDTH,
           right: 0,
         }}
-        onDragEnd={(event, info) => {
-            const dragDistance = info.offset.x;
-            const velocity = info.velocity.x;
-
-            // A quick drag will trigger a slide change
-            if (Math.abs(velocity) > 200) {
-                if (velocity < 0) {
-                    goToNext();
-                } else {
-                    goToPrev();
-                }
-            } else { // Otherwise, snap based on distance
-                const newIndex = Math.round(Math.abs(dragDistance) / CARD_TOTAL_WIDTH);
-                if (dragDistance < -CARD_TOTAL_WIDTH / 2) {
-                    setActiveIndex(Math.min(activeIndex + newIndex, cards.length - 1));
-                } else if (dragDistance > CARD_TOTAL_WIDTH / 2) {
-                    setActiveIndex(Math.max(activeIndex - newIndex, 0));
-                } else {
-                    // If not dragged far enough, snap back
-                     controls.start({ x: -activeIndex * CARD_TOTAL_WIDTH });
-                }
-            }
-        }}
+        onDragEnd={handleDragEnd}
       >
         {cards.map((card) => (
           <div className="carousel-item" key={card.docId}>
@@ -107,4 +108,4 @@ const Carousel = ({ cards, onSlideChange }) => {
   );
 };
 
-export default Carousel;
+export default Carousel
