@@ -28,7 +28,7 @@ const Tutorial = () => {
         const hasSeenTutorial = localStorage.getItem('photocard_tutorial_seen_v3');
         const hasAcknowledgedDisclaimer = localStorage.getItem('disclaimerAcknowledged_v2') === 'true';
         if (hasSeenTutorial !== 'true' && hasAcknowledgedDisclaimer) {
-            setTimeout(() => setStepIndex(0), 500);
+            setTimeout(() => setStepIndex(0), 1000); // Added a slight delay
         }
     }, []);
     
@@ -60,6 +60,7 @@ const Tutorial = () => {
             
             setClonedNode(targetElement.cloneNode(true));
             
+            // Recalculate bubble position after the clone is set
             setTimeout(() => {
                 const bubbleEl = document.getElementById('tutorial-bubble');
                 if (bubbleEl) {
@@ -79,11 +80,13 @@ const Tutorial = () => {
                             top = rect.top + rect.height / 2 - bubbleRect.height / 2;
                             setPointerClass('left');
                             break;
+                        // Add top/bottom cases if needed
                         default:
                             left = 0; top = 0;
                             break;
                     }
 
+                    // Adjust if off-screen
                     if (left < viewportPadding) left = viewportPadding;
                     if (top < viewportPadding) top = viewportPadding;
                     if (left + bubbleRect.width > window.innerWidth - viewportPadding) left = window.innerWidth - bubbleRect.width - viewportPadding;
@@ -112,20 +115,22 @@ const Tutorial = () => {
                     <div style={cloneStyle} dangerouslySetInnerHTML={{ __html: clonedNode.outerHTML }} />
                 )}
             </div>
-            <div id="tutorial-bubble" className={`tutorial-bubble ${isVisible ? 'visible' : ''}`} style={bubbleStyle}>
-                <div className={`tutorial-bubble-pointer ${pointerClass}`}></div>
-                <p className="mb-4">{tutorialSteps[stepIndex]?.text}</p>
-                <div className="flex justify-end gap-2">
-                    {stepIndex < tutorialSteps.length - 1 ? (
-                        <>
-                            <button onClick={closeTutorial} className="bg-gray-600 text-white py-1 px-3 rounded-full text-sm">Skip</button>
-                            <button onClick={nextStep} className="bg-blue-600 text-white py-1 px-3 rounded-full text-sm">Next</button>
-                        </>
-                    ) : (
-                        <button onClick={closeTutorial} className="bg-green-600 text-white py-1 px-3 rounded-full text-sm">Got it!</button>
-                    )}
+            {isVisible && (
+                <div id="tutorial-bubble" className="tutorial-bubble visible" style={bubbleStyle}>
+                    <div className={`tutorial-bubble-pointer ${pointerClass}`}></div>
+                    <p className="mb-4">{tutorialSteps[stepIndex]?.text}</p>
+                    <div className="flex justify-end gap-2">
+                        {stepIndex < tutorialSteps.length - 1 ? (
+                            <>
+                                <button onClick={closeTutorial} className="bg-gray-600 text-white py-1 px-3 rounded-full text-sm">Skip</button>
+                                <button onClick={nextStep} className="bg-blue-600 text-white py-1 px-3 rounded-full text-sm">Next</button>
+                            </>
+                        ) : (
+                            <button onClick={closeTutorial} className="bg-green-600 text-white py-1 px-3 rounded-full text-sm">Got it!</button>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

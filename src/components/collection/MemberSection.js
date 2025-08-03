@@ -16,7 +16,8 @@ const containerVariants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.1
+            staggerChildren: 0.08,
+            delayChildren: 0.2
         }
     }
 };
@@ -33,7 +34,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
     const isInView = useInView(sectionRef, { amount: 0.6, once: false });
 
     const { siteContent, metadata } = useContext(AppContext);
-    const { basket, addToBasket, removeFromBasket, isInBasket, itemCount } = useCart();
+    const { addToBasket, removeFromBasket, isInBasket, itemCount } = useCart();
     const { getFiltersForSection, setActiveSectionId } = useFilters();
 
     const currentFilters = getFiltersForSection(sectionId);
@@ -61,8 +62,6 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
     }, [cards, currentFilters]);
 
     const [activeIndex, setActiveIndex] = useState(0);
-
-    // This is the key fix: activeCard is now derived state from activeIndex and filteredCards
     const activeCard = useMemo(() => filteredCards[activeIndex] || null, [filteredCards, activeIndex]);
 
     const quote = siteContent.memberQuotes?.[groupName]?.[memberName];
@@ -78,18 +77,12 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
         }
     }, [isInView, sectionId, memberColor, groupColor, setActiveSectionId, setActiveColor, setActiveGroupColor]);
     
-    // Reset index when filters change
     useEffect(() => {
         setActiveIndex(0);
     }, [filteredCards]);
 
-    const finalPrice = useMemo(() => {
-        return activeCard ? calculateDiscountedPrice(activeCard.price, activeCard.discount) : 0;
-    }, [activeCard]);
-
-    const isCardInBasket = useMemo(() => {
-        return activeCard ? isInBasket(activeCard.docId) : false;
-    }, [activeCard, isInBasket]);
+    const finalPrice = useMemo(() => activeCard ? calculateDiscountedPrice(activeCard.price, activeCard.discount) : 0, [activeCard]);
+    const isCardInBasket = useMemo(() => activeCard ? isInBasket(activeCard.docId) : false, [activeCard, isInBasket]);
 
     const handleBasketButtonClick = () => {
         if (!activeCard) return;
@@ -101,18 +94,12 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
     };
     
     const getButtonStyle = () => {
-        if (!activeCard) return { backgroundColor: '#555', cursor: 'not-allowed' };
-        if (isCardInBasket) {
-            return { backgroundColor: groupColor };
-        }
-        if (activeCard.status === 'available') {
-            return { backgroundColor: memberColor };
-        }
-        return { backgroundColor: '#555', cursor: 'not-allowed' };
+        if (!activeCard || activeCard.status !== 'available') return { backgroundColor: '#555', cursor: 'not-allowed' };
+        return { backgroundColor: isCardInBasket ? groupColor : memberColor };
     };
 
     return (
-        <motion.section
+        <section
             ref={sectionRef}
             id={sectionId}
             className="showcase-section scroll-snap-section member-section-container"
@@ -121,7 +108,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
             <RoomBackdrop />
 
             {quote && (
-                <motion.div 
+                 <motion.div 
                     className="member-quote" 
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -133,14 +120,14 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                 </motion.div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full max-w-6xl mx-auto z-10">
-                <motion.div 
-                    className="card-details-panel"
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
-                >
+            <motion.div 
+                className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full max-w-6xl mx-auto z-10"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+            >
+                <div className="card-details-panel">
                     <motion.p variants={itemVariants} className="card-id-text">{activeCard?.id || 'N/A'}</motion.p>
                     <motion.h2 variants={itemVariants} className="member-name" style={{ color: memberColor }}>{memberName}</motion.h2>
                     <motion.p variants={itemVariants} className="group-name" style={{ color: groupColor }}>{groupName}</motion.p>
@@ -157,7 +144,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                     <motion.button
                         variants={itemVariants}
                         onClick={handleBasketButtonClick}
-                        disabled={!activeCard || activeCard.status !== 'available'}
+                        disabled={!activeCard || (activeCard.status !== 'available' && !isCardInBasket)}
                         className="add-to-basket-main-btn"
                         style={getButtonStyle()}
                         whileHover={{ scale: 1.05 }}
@@ -168,14 +155,14 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                             : <><FaCartPlus/> Add to Basket</>
                         }
                     </motion.button>
-                </motion.div>
+                </div>
                 <div className="carousel-mask w-full lg:w-[150%] lg:-ml-[25%]">
                     <Carousel
                         cards={filteredCards}
                         onSlideChange={setActiveIndex}
                     />
                 </div>
-            </div>
+            </motion.div>
 
             {signatureUrl && (
                 <motion.div 
@@ -194,7 +181,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
             <div className={`scroll-down-arrow ${itemCount > 0 ? 'raised' : ''}`} style={{ color: nextSectionColor }}>
                 <FaAngleDown size={24} />
             </div>
-        </motion.section>
+        </section>
     );
 };
 
