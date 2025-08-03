@@ -17,21 +17,17 @@ const Gallery = () => {
     const { cards, siteContent, metadata, loading } = useContext(AppContext);
     const { isNavScrolling } = useUI();
     const [showDisclaimer, setShowDisclaimer] = useState(false);
-    const [isDisclaimerAcknowledged, setIsDisclaimerAcknowledged] = useState(false);
 
     useEffect(() => {
         const hasAcknowledged = localStorage.getItem('disclaimerAcknowledged_v2');
         if (hasAcknowledged !== 'true') {
             setShowDisclaimer(true);
-        } else {
-            setIsDisclaimerAcknowledged(true);
         }
     }, []);
 
     const handleAcknowledge = () => {
         localStorage.setItem('disclaimerAcknowledged_v2', 'true');
         setShowDisclaimer(false);
-        setIsDisclaimerAcknowledged(true);
     };
 
     const groupedData = useMemo(() => cards.reduce((acc, card) => {
@@ -112,7 +108,7 @@ const Gallery = () => {
             <FloatingBasket />
             <DisclaimerModal isOpen={showDisclaimer} onAcknowledge={handleAcknowledge} />
             <FilterSidebar />
-            {isDisclaimerAcknowledged && <Tutorial />}
+            <Tutorial />
 
             <Header nextSectionColor={renderedSections[0]?.nextSectionColor} />
 

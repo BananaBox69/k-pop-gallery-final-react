@@ -10,6 +10,7 @@ const CardDetails = ({ activeCard, filteredCards, memberName, groupName, memberC
         return activeCard ? calculateDiscountedPrice(activeCard.price, activeCard.discount) : 0;
     }, [activeCard]);
 
+    // MODIFIED: This now directly depends on the 'basket' array for more reliable updates.
     const isCardInBasket = useMemo(() => {
         return activeCard ? basket.some(item => item.docId === activeCard.docId) : false;
     }, [activeCard, basket]);

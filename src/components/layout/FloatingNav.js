@@ -33,7 +33,8 @@ const FloatingNav = ({ sections }) => {
         if (section.type === 'group' && section.name !== 'Home') {
             acc[section.name] = {
                 id: section.id,
-                prefix: config.groupPrefixes[section.name] || section.name.charAt(0),
+                // MODIFIED: Swapped IU lettering
+                prefix: section.name === 'IU' ? config.memberPrefixes.IU : config.groupPrefixes[section.name] || section.name.charAt(0),
                 color: config.colors[section.name]?.group,
                 members: []
             };
@@ -46,7 +47,8 @@ const FloatingNav = ({ sections }) => {
             navGroups[section.group].members.push({
                 id: section.id,
                 name: section.name,
-                prefix: section.name === 'IU' ? config.memberPrefixes.IU : section.name.charAt(0),
+                 // MODIFIED: Swapped IU lettering
+                prefix: section.name === 'IU' ? config.groupPrefixes.IU : section.name.charAt(0),
                 color: config.colors[section.group]?.[section.name],
             });
         }

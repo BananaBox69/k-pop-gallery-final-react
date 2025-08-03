@@ -13,7 +13,7 @@ const tutorialSteps = [
     },
 ];
 
-const Tutorial = ({ isDisclaimerAcknowledged }) => {
+const Tutorial = () => {
     const [stepIndex, setStepIndex] = useState(-1);
     const [cloneStyle, setCloneStyle] = useState({});
     const [bubbleStyle, setBubbleStyle] = useState({});
@@ -22,11 +22,11 @@ const Tutorial = ({ isDisclaimerAcknowledged }) => {
 
     useEffect(() => {
         const hasSeenTutorial = localStorage.getItem('photocard_tutorial_seen_v3');
-        if (hasSeenTutorial !== 'true' && isDisclaimerAcknowledged) {
+        if (hasSeenTutorial !== 'true') {
             // Delay start to allow UI to render
             setTimeout(() => setStepIndex(0), 500);
         }
-    }, [isDisclaimerAcknowledged]);
+    }, []);
 
     useEffect(() => {
         if (stepIndex < 0 || stepIndex >= tutorialSteps.length) {
