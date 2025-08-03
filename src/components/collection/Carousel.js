@@ -6,7 +6,7 @@ import 'swiper/css/pagination';
 import { EffectCoverflow, Pagination } from 'swiper/modules';
 import Card from './Card';
 
-const Carousel = ({ cards, activeIndex, setActiveIndex }) => {
+const Carousel = ({ cards, onSlideChange }) => {
 
     if (!cards || cards.length === 0) {
         return (
@@ -32,12 +32,14 @@ const Carousel = ({ cards, activeIndex, setActiveIndex }) => {
                 }}
                 pagination={{ clickable: true }}
                 modules={[EffectCoverflow, Pagination]}
-                onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-                initialSlide={activeIndex}
+                // MODIFIED: This now directly passes the full card object back up
+                onSlideChange={(swiper) => onSlideChange(cards[swiper.realIndex])}
+                initialSlide={0}
                 key={cards.map(c => c.docId).join('-')}
                 className="w-full h-full !overflow-visible" // Added !overflow-visible here
             >
                 {cards.map((card) => (
+                    // MODIFIED: Added overflow: 'visible' to the slide itself
                     <SwiperSlide key={card.docId} style={{ width: '224px', height: '320px', overflow: 'visible' }}>
                         <Card card={card} />
                     </SwiperSlide>

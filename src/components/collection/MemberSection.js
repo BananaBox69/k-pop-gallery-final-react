@@ -56,7 +56,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
         });
     }, [cards, currentFilters]);
 
-    const [activeIndex, setActiveIndex] = useState(0);
+    // MODIFIED: Removed activeIndex state, as we now set the active card directly.
     const [activeCard, setActiveCard] = useState(null);
 
     const quote = siteContent.memberQuotes?.[groupName]?.[memberName];
@@ -73,16 +73,10 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
     }, [isInView, sectionId, memberColor, groupColor, setActiveSectionId, setActiveColor, setActiveGroupColor]);
 
     useEffect(() => {
-        // When filtered cards change, reset the active index and update the active card.
-        setActiveIndex(0);
+        // When filtered cards change, update the active card to the first one.
         setActiveCard(filteredCards[0] || null);
     }, [filteredCards]);
     
-    useEffect(() => {
-        // When only the index changes, update the active card.
-        setActiveCard(filteredCards[activeIndex] || null);
-    }, [activeIndex, filteredCards]);
-
     return (
         <motion.section
             ref={sectionRef}
@@ -115,8 +109,8 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                 <div className="carousel-mask w-full lg:w-[150%] lg:-ml-[25%]">
                     <Carousel
                         cards={filteredCards}
-                        activeIndex={activeIndex}
-                        setActiveIndex={setActiveIndex}
+                        // MODIFIED: Pass the setActiveCard function directly to the carousel.
+                        onSlideChange={setActiveCard}
                     />
                 </div>
             </div>
