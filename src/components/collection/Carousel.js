@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
@@ -6,7 +6,16 @@ import 'swiper/css/pagination';
 import { EffectCoverflow, Pagination } from 'swiper/modules';
 import Card from './Card';
 
-const Carousel = ({ cards, onSlideChange }) => {
+const Carousel = ({ cards, activeIndex, setActiveIndex }) => {
+    // MODIFIED: Create a ref to hold the Swiper instance.
+    const swiperRef = useRef(null);
+
+    // MODIFIED: When the activeIndex from the parent changes, programmatically slide the carousel.
+    useEffect(() => {
+        if (swiperRef.current && swiperRef.current.swiper) {
+            swiperRef.current.swiper.slideToLoop(activeIndex);
+        }
+    }, [activeIndex]);
 
     if (!cards || cards.length === 0) {
         return (
@@ -19,10 +28,12 @@ const Carousel = ({ cards, onSlideChange }) => {
     return (
         <div className="relative w-full h-[460px] pt-12">
             <Swiper
+                ref={swiperRef} // MODIFIED: Assign the ref to the Swiper component.
                 effect={'coverflow'}
                 grabCursor={true}
                 centeredSlides={true}
                 slidesPerView={'auto'}
+                loop={true} // MODIFIED: Added loop for smoother programmatic sliding.
                 coverflowEffect={{
                   rotate: 50,
                   stretch: 0,
@@ -32,15 +43,12 @@ const Carousel = ({ cards, onSlideChange }) => {
                 }}
                 pagination={{ clickable: true }}
                 modules={[EffectCoverflow, Pagination]}
-                // MODIFIED: This now directly passes the full card object back up
-                onSlideChange={(swiper) => onSlideChange(cards[swiper.realIndex])}
-                initialSlide={0}
+                onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+                initialSlide={activeIndex}
                 key={cards.map(c => c.docId).join('-')}
-                className="w-full h-full !overflow-visible" // Added !overflow-visible here
             >
                 {cards.map((card) => (
-                    // MODIFIED: Added overflow: 'visible' to the slide itself
-                    <SwiperSlide key={card.docId} style={{ width: '224px', height: '320px', overflow: 'visible' }}>
+                    <SwiperSlide key={card.docId}>
                         <Card card={card} />
                     </SwiperSlide>
                 ))}

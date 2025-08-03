@@ -22,7 +22,6 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
     const currentFilters = getFiltersForSection(sectionId);
 
     const filteredCards = useMemo(() => {
-        // If no cards are passed, return an empty array immediately.
         if (!cards || cards.length === 0) {
             return [];
         }
@@ -56,8 +55,9 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
         });
     }, [cards, currentFilters]);
 
-    // MODIFIED: Removed activeIndex state, as we now set the active card directly.
-    const [activeCard, setActiveCard] = useState(null);
+    // MODIFIED: activeIndex is now the source of truth, controlling the carousel.
+    const [activeIndex, setActiveIndex] = useState(0);
+    const activeCard = useMemo(() => filteredCards[activeIndex] || null, [filteredCards, activeIndex]);
 
     const quote = siteContent.memberQuotes?.[groupName]?.[memberName];
     const signatureUrl = metadata.memberSignatures?.[groupName]?.[memberName];
@@ -72,9 +72,9 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
         }
     }, [isInView, sectionId, memberColor, groupColor, setActiveSectionId, setActiveColor, setActiveGroupColor]);
 
+    // MODIFIED: When filters change, reset the activeIndex, which in turn updates the activeCard.
     useEffect(() => {
-        // When filtered cards change, update the active card to the first one.
-        setActiveCard(filteredCards[0] || null);
+        setActiveIndex(0);
     }, [filteredCards]);
     
     return (
@@ -107,10 +107,11 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                     groupColor={groupColor}
                 />
                 <div className="carousel-mask w-full lg:w-[150%] lg:-ml-[25%]">
+                    {/* MODIFIED: Pass activeIndex down and get setActiveIndex back up. */}
                     <Carousel
                         cards={filteredCards}
-                        // MODIFIED: Pass the setActiveCard function directly to the carousel.
-                        onSlideChange={setActiveCard}
+                        activeIndex={activeIndex}
+                        setActiveIndex={setActiveIndex}
                     />
                 </div>
             </div>
