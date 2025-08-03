@@ -1,6 +1,28 @@
-/* --- CARD 3D CONTEXT FIX --- */
+/* --- CARD 3D CONTEXT & REFLECTION --- */
 .group {
     transform-style: preserve-3d;
+}
+
+.card-container {
+    position: relative;
+    width: 224px;
+    height: 320px;
+}
+/* New, reliable reflection approach */
+.card-container::after {
+    content: '';
+    position: absolute;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: var(--card-image);
+    background-size: cover;
+    background-position: center;
+    transform: scaleY(-1);
+    z-index: -1;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.25), transparent 40%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.25), transparent 40%);
 }
 
 /* --- CARD TAGS & IN BASKET INDICATOR --- */
@@ -44,8 +66,7 @@
     transform: scale(1);
 }
 
-
-/* --- CARD FLIP & REFLECTION --- */
+/* --- CARD FLIP & SHEEN --- */
 .card-inner {
     position: relative;
     width: 100%;
@@ -60,7 +81,7 @@
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     border-radius: 1rem;
-    overflow: hidden; /* This helps contain elements during flip */
+    overflow: hidden;
 }
 .card-face-back {
     transform: rotateY(180deg);
@@ -85,30 +106,7 @@
 .group:hover .flip-button {
     opacity: 1;
 }
-.card-reflection {
-    content: '';
-    position: absolute;
-    bottom: -100%;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: inherit;
-    background-size: cover;
-    background-position: center;
-    transform: scaleY(-1);
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.25), transparent 40%);
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.25), transparent 40%);
-    z-index: -1;
-}
-.card-face-front .card-reflection {
-    background-image: var(--bg-image);
-}
-.card-face-back .card-reflection {
-    background-image: var(--bg-image-back);
-}
 
-
-/* --- CARD SHEEN --- */
 .swiper-slide-active .sheen-overlay,
 .swiper-slide-next .sheen-overlay,
 .swiper-slide-prev .sheen-overlay {
