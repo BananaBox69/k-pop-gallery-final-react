@@ -15,7 +15,7 @@ import { config } from '../config/appConfig';
 
 const Gallery = () => {
     const { cards, siteContent, metadata, loading } = useContext(AppContext);
-    const { isNavScrolling, isBlurOverlayActive } = useUI(); // Get the blur state
+    const { isNavScrolling, isBlurOverlayActive } = useUI();
     const [showDisclaimer, setShowDisclaimer] = useState(false);
 
     useEffect(() => {
@@ -38,109 +38,83 @@ const Gallery = () => {
         acc[group][member].push(card);
         return acc;
     }, {}), [cards]);
-
-    const renderedSections = useMemo(() => {
-        if (!metadata.groupOrder) return [];
-        
-        const sections = [];
-        
-        // Add Header section placeholder
-        sections.push({ type: 'header', id: 'header' });
-
-        metadata.groupOrder.forEach(groupName => {
-            const memberSections = [];
-            let groupHasCards = false;
-            
-            if (metadata.memberOrder[groupName]) {
-                metadata.memberOrder[groupName].forEach(memberName => {
-                    if (groupedData[groupName]?.[memberName]) {
-                        groupHasCards = true;
-                        memberSections.push({
-                            type: 'member',
-                            name: memberName,
-                            group: groupName,
-                            id: `member-${groupName}-${memberName}`
-                        });
-                    }
-                });
-            }
-
-            if (groupHasCards) {
-                 sections.push({
-                    type: 'group',
-                    name: groupName,
-                    id: `group-${groupName}`
-                });
-                sections.push(...memberSections);
-            }
-        });
-        
-        // Add next section color to each section
-        return sections.map((section, index) => {
-            const nextSection = sections[index + 1];
-            let nextColor = '#777'; // Default color for the very last section's arrow
-            if (nextSection) {
-                if (nextSection.type === 'group') {
-                    nextColor = config.colors[nextSection.name]?.group;
-                } else { // type is 'member'
-                    nextColor = config.colors[nextSection.group]?.[nextSection.name];
-                }
-            }
-            return { ...section, nextSectionColor: nextColor };
-        });
-
-    }, [groupedData, metadata]);
     
-    // Create a separate list for the Nav since it needs slightly different data
-    const navSections = useMemo(() => {
-        const homeSection = { type: 'group', name: 'Home', id: 'header' };
-        const otherSections = renderedSections.filter(s => s.type !== 'header');
-        return [homeSection, ...otherSections];
-    }, [renderedSections]);
+    // Create a flat list of all valid, renderable sections for nav and arrow logic
+    const allRenderableSections = useMemo(() => {
+        if (!metadata.groupOrder) return [];
+        const sections = [];
+        metadata.groupOrder.forEach(groupName => {
+            const membersWithCards = metadata.memberOrder[groupName]?.filter(memberName => groupedData[groupName]?.[memberName]?.length > 0);
+            if (membersWithCards && membersWithCards.length > 0) {
+                sections.push({ type: 'group', name: groupName, id: `group-${groupName}` });
+                membersWithCards.forEach(memberName => {
+                    sections.push({ type: 'member', name: memberName, group: groupName, id: `member-${groupName}-${memberName}` });
+                });
+            }
+        });
+        return sections;
+    }, [groupedData, metadata]);
 
+
+    const getNextSectionColor = (currentIndex) => {
+        const nextSection = allRenderableSections[currentIndex + 1];
+        if (!nextSection) return '#777'; // Default for the last element
+
+        if (nextSection.type === 'group') {
+            return config.colors[nextSection.name]?.group || '#777';
+        }
+        return config.colors[nextSection.group]?.[nextSection.name] || '#777';
+    };
 
     if (loading) return <Loader />;
+
+    let sectionRenderIndex = 0;
 
     return (
         <div id="gallery-container" className={`${isBlurOverlayActive ? 'content-blurred' : ''}`}>
             <div id="scroll-container" className={`scroll-snap-container ${isNavScrolling ? 'no-snap' : ''}`}>
-                <Header nextSectionColor={renderedSections[0]?.nextSectionColor} />
+                <Header nextSectionColor={getNextSectionColor(-1)} />
+                
+                {metadata.groupOrder?.map((groupName) => {
+                    const membersWithCards = metadata.memberOrder?.[groupName]?.filter(memberName => groupedData[groupName]?.[memberName]?.length > 0);
+                    if (!membersWithCards || membersWithCards.length === 0) return null;
 
-                {renderedSections.slice(1).map((section) => {
-                     if (section.type === 'group') {
-                         return (
-                             <GroupIntro
-                                 key={section.id}
-                                 id={section.id}
-                                 groupName={section.name}
-                                 subtitle={siteContent.groupSubtitles?.[section.name]}
-                                 bannerUrl={siteContent.groupBanners?.[section.name]}
-                                 logoUrl={metadata.groupLogos?.[section.name]}
-                                 nextSectionColor={section.nextSectionColor}
-                             />
-                         );
-                     }
-                     if (section.type === 'member') {
-                         const memberCards = groupedData[section.group]?.[section.name];
-                         if (!memberCards) return null;
-                         return (
-                             <MemberSection
-                                 key={section.id}
-                                 sectionId={section.id}
-                                 groupName={section.group}
-                                 memberName={section.name}
-                                 cards={memberCards}
-                                 nextSectionColor={section.nextSectionColor}
-                             />
-                         );
-                     }
-                     return null;
+                    const groupIntroColor = getNextSectionColor(sectionRenderIndex);
+                    sectionRenderIndex++;
+
+                    return (
+                        <React.Fragment key={groupName}>
+                            <GroupIntro
+                                id={`group-${groupName}`}
+                                groupName={groupName}
+                                subtitle={siteContent.groupSubtitles?.[groupName]}
+                                bannerUrl={siteContent.groupBanners?.[groupName]}
+                                logoUrl={metadata.groupLogos?.[groupName]}
+                                nextSectionColor={groupIntroColor}
+                            />
+                            {membersWithCards.map((memberName) => {
+                                const memberSectionColor = getNextSectionColor(sectionRenderIndex);
+                                sectionRenderIndex++;
+                                return (
+                                    <MemberSection
+                                        key={`${groupName}-${memberName}`}
+                                        sectionId={`member-${groupName}-${memberName}`}
+                                        groupName={groupName}
+                                        memberName={memberName}
+                                        cards={groupedData[groupName]?.[memberName]}
+                                        nextSectionColor={memberSectionColor}
+                                    />
+                                );
+                            })}
+                        </React.Fragment>
+                    );
                 })}
             </div>
 
             {/* UI Overlays */}
             <FloatingUI />
-            <FloatingNav sections={navSections} />
+            {/* Nav needs a slightly different structure (with Home) */}
+            <FloatingNav sections={[{ type: 'group', name: 'Home', id: 'header' }, ...allRenderableSections]} />
             <FloatingBasket />
             <FilterSidebar />
             
