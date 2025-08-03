@@ -5,6 +5,7 @@ export const useUI = () => useContext(UIContext);
 
 export const UIProvider = ({ children }) => {
     const [activeColor, setActiveColor] = useState('#777');
+    const [activeGroupColor, setActiveGroupColor] = useState('#777'); // New state for group color
     const [isNavScrolling, setIsNavScrolling] = useState(false);
 
     useEffect(() => {
@@ -17,8 +18,7 @@ export const UIProvider = ({ children }) => {
 
     const onNavClick = () => {
         setIsNavScrolling(true);
-        // Reduce timeout to match scroll duration and remove perceived delay
-        setTimeout(() => setIsNavScrolling(false), 100); 
+        setTimeout(() => setIsNavScrolling(false), 1000); 
     };
 
     const hexToRgb = (hex) => {
@@ -33,6 +33,8 @@ export const UIProvider = ({ children }) => {
     const value = {
         activeColor,
         setActiveColor,
+        activeGroupColor,      // Expose new state and setter
+        setActiveGroupColor,
         isNavScrolling,
         onNavClick,
     };

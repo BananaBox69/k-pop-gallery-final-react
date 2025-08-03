@@ -8,7 +8,7 @@ import ConfirmationModal from '../admin/ConfirmationModal';
 
 const FloatingBasket = () => {
     const { basket, itemCount, clearBasket } = useCart();
-    const { activeColor } = useUI();
+    const { activeGroupColor } = useUI(); // Use activeGroupColor here
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
@@ -27,7 +27,7 @@ const FloatingBasket = () => {
 
     return (
         <>
-            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-11/12 max-w-lg bg-gray-800/80 backdrop-blur-md border border-gray-700 rounded-full shadow-lg z-40 flex items-center justify-between px-3 md:px-6 py-3 animate-fade-in-up">
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-11/12 max-w-xl bg-gray-800/80 backdrop-blur-md border border-gray-700 rounded-full shadow-lg z-40 flex items-center justify-between px-3 md:px-6 py-3 animate-fade-in-up">
                 <div className="flex items-center gap-3 text-white">
                     <FaShoppingCart />
                     <span>{itemCount} item{itemCount > 1 ? 's' : ''}</span>
@@ -36,14 +36,14 @@ const FloatingBasket = () => {
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setIsConfirmOpen(true)}
-                        style={{ backgroundColor: activeColor }}
+                        style={{ backgroundColor: activeGroupColor }} // Apply group color
                         className={buttonClasses}
                     >
                         Empty Basket
                     </button>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        style={{ backgroundColor: activeColor }}
+                        style={{ backgroundColor: activeGroupColor }} // Apply group color
                         className={buttonClasses}
                     >
                         View Basket

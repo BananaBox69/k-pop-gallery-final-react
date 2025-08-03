@@ -11,6 +11,7 @@ import FloatingBasket from '../components/cart/FloatingBasket';
 import DisclaimerModal from '../components/ui/DisclaimerModal';
 import FilterSidebar from '../components/ui/FilterSidebar';
 import Tutorial from '../components/ui/Tutorial';
+import { config } from '../config/appConfig';
 
 const Gallery = () => {
     const { cards, siteContent, metadata, loading } = useContext(AppContext);
@@ -40,8 +41,8 @@ const Gallery = () => {
 
     const renderedSections = useMemo(() => {
         if (!metadata.groupOrder) return [];
-        const sections = [{ type: 'group', name: 'Home', id: 'header' }];
-        metadata.groupOrder.forEach(groupName => {
+        const sections = [{ type: 'group', name: 'Home', id: 'header', color: config.colors[metadata.groupOrder[0]]?.group || '#777'}];
+        metadata.groupOrder.forEach((groupName, groupIndex) => {
             const memberSections = [];
             let groupHasCards = false;
             
@@ -68,7 +69,21 @@ const Gallery = () => {
                 sections.push(...memberSections);
             }
         });
-        return sections;
+        
+        // Add next section color to each section
+        return sections.map((section, index) => {
+            const nextSection = sections[index + 1];
+            let nextColor = '#777'; // Default color
+            if (nextSection) {
+                if (nextSection.type === 'group') {
+                    nextColor = config.colors[nextSection.name]?.group;
+                } else {
+                    nextColor = config.colors[nextSection.group]?.[nextSection.name];
+                }
+            }
+            return { ...section, nextSectionColor: nextColor };
+        });
+
     }, [groupedData, metadata]);
 
     if (loading) return <Loader />;
@@ -82,37 +97,37 @@ const Gallery = () => {
             <FilterSidebar />
             <Tutorial />
 
-            <Header />
+            <Header nextSectionColor={renderedSections[0]?.nextSectionColor} />
 
-            {metadata.groupOrder?.map(groupName => {
-                const groupHasRenderedMembers = renderedSections.some(s => s.type === 'member' && s.group === groupName);
-                if (!groupHasRenderedMembers) return null;
-
-                return (
-                    <React.Fragment key={groupName}>
-                        <GroupIntro
-                            id={`group-${groupName}`}
-                            groupName={groupName}
-                            subtitle={siteContent.groupSubtitles?.[groupName]}
-                            bannerUrl={siteContent.groupBanners?.[groupName]}
-                            logoUrl={metadata.groupLogos?.[groupName]}
-                        />
-                        {metadata.memberOrder[groupName]?.map(memberName => {
-                            const memberCards = groupedData[groupName]?.[memberName];
-                            if (!memberCards) return null;
-
-                            return (
-                                <MemberSection
-                                    key={`${groupName}-${memberName}`}
-                                    sectionId={`member-${groupName}-${memberName}`}
-                                    groupName={groupName}
-                                    memberName={memberName}
-                                    cards={memberCards}
-                                />
-                            );
-                        })}
-                    </React.Fragment>
-                )
+            {renderedSections.slice(1).map((section, index) => {
+                 if (section.type === 'group') {
+                     return (
+                         <GroupIntro
+                             key={section.id}
+                             id={section.id}
+                             groupName={section.name}
+                             subtitle={siteContent.groupSubtitles?.[section.name]}
+                             bannerUrl={siteContent.groupBanners?.[section.name]}
+                             logoUrl={metadata.groupLogos?.[section.name]}
+                             nextSectionColor={section.nextSectionColor}
+                         />
+                     );
+                 }
+                 if (section.type === 'member') {
+                     const memberCards = groupedData[section.group]?.[section.name];
+                     if (!memberCards) return null;
+                     return (
+                         <MemberSection
+                             key={section.id}
+                             sectionId={section.id}
+                             groupName={section.group}
+                             memberName={section.name}
+                             cards={memberCards}
+                             nextSectionColor={section.nextSectionColor}
+                         />
+                     );
+                 }
+                 return null;
             })}
         </div>
     );
