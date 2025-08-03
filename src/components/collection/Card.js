@@ -71,7 +71,7 @@ const Card = ({ card }) => {
                 transition={{ duration: 0.4 }}
             >
                 {/* --- FRONT FACE --- */}
-                <div className="card-face relative">
+                <div className="card-face absolute w-full h-full">
                     <div className="absolute inset-0 bg-cover bg-center rounded-xl" style={{ backgroundImage: `url(${card.imageUrl})` }}></div>
                     <div className="sheen-overlay" />
                     {sparkleColor && <div className="sparkle-container opacity-0 group-hover:opacity-100 transition-opacity duration-500"><Sparkles color={sparkleColor} /></div>}
@@ -94,7 +94,7 @@ const Card = ({ card }) => {
                 </div>
 
                 {/* --- BACK FACE --- */}
-                <div className="card-face card-face-back bg-gray-800 relative">
+                <div className="card-face card-face-back bg-gray-800 absolute w-full h-full">
                      <div className="absolute inset-0 bg-cover bg-center rounded-xl" style={{ backgroundImage: `url(${card.backImage || 'https://placehold.co/220x341/1e1e1e/ffffff?text=Card+Back'})` }}></div>
                      <button onClick={handleFlipClick} className="flip-button opacity-100">
                         <CgSync size={20} />

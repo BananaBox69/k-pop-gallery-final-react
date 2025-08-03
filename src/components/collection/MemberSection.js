@@ -111,7 +111,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId }) => {
                     <p className="price-tag text-4xl font-black mt-4" style={{ color: memberColor }}>
                         {activeCard ? `€${finalPrice.toFixed(2)}` : ''}
                     </p>
-                    {activeCard && finalPrice < activeCard.price && (
+                    {activeCard && activeCard.discount > 0 && (
                         <div className="original-price-container text-gray-500 text-xl">
                             <span className="line-through">€{activeCard.price.toFixed(2)}</span>
                         </div>
@@ -119,13 +119,13 @@ const MemberSection = ({ groupName, memberName, cards, sectionId }) => {
                     <button
                         onClick={handleBasketButtonClick}
                         disabled={!activeCard || (activeCard.status !== 'available' && !isCardInBasket)}
-                        className={`mt-6 w-auto px-8 py-3 rounded-full font-bold flex items-center justify-center gap-3 transition-all ${
-                            isCardInBasket ? 'bg-green-600 text-white'
-                            : activeCard?.status !== 'available' ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                            : 'bg-redvelvet text-white hover:bg-opacity-90'
-                        }`}
+                        className="mt-6 w-auto px-8 py-3 rounded-full font-bold flex items-center justify-center gap-3 transition-all"
+                        style={{
+                            backgroundColor: isCardInBasket ? groupColor : (activeCard?.status !== 'available' ? '#555' : memberColor),
+                            cursor: !activeCard || (activeCard.status !== 'available' && !isCardInBasket) ? 'not-allowed' : 'pointer'
+                        }}
                     >
-                        {isCardInBasket ? <><FaCheckCircle/> In Basket (Remove)</>
+                        {isCardInBasket ? <><FaCheckCircle/> In Basket</>
                             : activeCard?.status !== 'available' ? <span className="capitalize">{activeCard?.status}</span>
                             : <><FaCartPlus/> Add to Basket</>
                         }

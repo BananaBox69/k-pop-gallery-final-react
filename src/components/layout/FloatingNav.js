@@ -33,7 +33,7 @@ const FloatingNav = ({ sections }) => {
         if (section.type === 'group' && section.name !== 'Home') {
             acc[section.name] = {
                 id: section.id,
-                prefix: config.groupPrefixes[section.name] || section.name.charAt(0),
+                prefix: section.name === 'IU' ? config.groupPrefixes.IU : config.groupPrefixes[section.name] || section.name.charAt(0),
                 color: config.colors[section.name]?.group,
                 members: []
             };
