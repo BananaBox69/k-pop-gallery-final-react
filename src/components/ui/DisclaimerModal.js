@@ -11,14 +11,23 @@ const DisclaimerModal = ({ isOpen, onAcknowledge }) => {
         <strong class="text-white">Private Sale Policy:</strong>
         <p>As a private person, I do not offer refunds, returns, or any kind of warranties.</p>
     `;
+    
+    const handleCancel = () => {
+        window.location.href = 'https://www.google.com';
+    };
 
     return (
         <Modal isOpen={isOpen} onClose={() => {}} title="Disclaimer">
              <div className="flex flex-col gap-4">
                 <div className="text-sm text-gray-300" dangerouslySetInnerHTML={{ __html: disclaimerText }} />
-                <button onClick={onAcknowledge} className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-500 transition-colors">
-                    Acknowledge and Continue
-                </button>
+                <div className="flex gap-3 mt-4">
+                    <button onClick={handleCancel} className="w-full bg-gray-600 text-white p-2 rounded-md hover:bg-gray-500 transition-colors">
+                        Cancel
+                    </button>
+                    <button onClick={onAcknowledge} className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-500 transition-colors">
+                        Acknowledge and Continue
+                    </button>
+                </div>
              </div>
         </Modal>
     );

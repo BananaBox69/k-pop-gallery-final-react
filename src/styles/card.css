@@ -60,7 +60,7 @@
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     border-radius: 1rem;
-    overflow: visible; /* MODIFIED: This was 'hidden' and was clipping the reflection. */
+    overflow: visible;
 }
 .card-face-back {
     transform: rotateY(180deg);
