@@ -10,29 +10,40 @@ import { config } from '../../config/appConfig';
 import RoomBackdrop from '../ui/RoomBackdrop';
 import { useUI } from '../../context/UIProvider';
 
-const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
-};
-
 const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionColor }) => {
     const { setActiveColor, setActiveGroupColor } = useUI();
     const sectionRef = useRef(null);
     const isInView = useInView(sectionRef, { amount: 0.6, once: false });
 
     const { siteContent, metadata } = useContext(AppContext);
-    const { addToBasket, removeFromBasket, isInBasket, itemCount } = useCart();
+    const { basket, addToBasket, removeFromBasket, isInBasket, itemCount } = useCart();
     const { getFiltersForSection, setActiveSectionId } = useFilters();
 
     const currentFilters = getFiltersForSection(sectionId);
 
     const filteredCards = useMemo(() => {
-        if (!cards || cards.length === 0) return [];
+        // If no cards are passed, return an empty array immediately.
+        if (!cards || cards.length === 0) {
+            return [];
+        }
+        
         return cards.filter(card => {
             const { searchTerm, album, version, tags } = currentFilters;
-            if (searchTerm && !`${card.album || ''} ${card.version || card.description || ''} ${card.id || ''}`.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+
+            // Search Term Filter
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                const searchableText = `${card.album || ''} ${card.version || card.description || ''} ${card.id || ''}`.toLowerCase();
+                if (!searchableText.includes(term)) return false;
+            }
+
+            // Album Filter
             if (album !== 'All' && card.album !== album) return false;
+
+            // Version Filter
             if (version !== 'All' && (card.version || card.description) !== version) return false;
+
+            // Tags Filter
             if (tags.size > 0) {
                 const isNew = card.dateAdded && (Date.now() - card.dateAdded.getTime()) < 7 * 24 * 60 * 60 * 1000;
                 if (tags.has('new') && !isNew) return false;
@@ -40,14 +51,13 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                 if (tags.has('sale') && card.discount !== 10) return false;
                 if (tags.has('super-sale') && card.discount !== 20) return false;
             }
+
             return true;
         });
     }, [cards, currentFilters]);
 
     const [activeIndex, setActiveIndex] = useState(0);
-    
-    // This is the key fix: activeCard is now reactive to changes in both filters and carousel navigation.
-    const activeCard = useMemo(() => filteredCards[activeIndex] || null, [filteredCards, activeIndex]);
+    const [activeCard, setActiveCard] = useState(null);
 
     const quote = siteContent.memberQuotes?.[groupName]?.[memberName];
     const signatureUrl = metadata.memberSignatures?.[groupName]?.[memberName];
@@ -61,14 +71,26 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
             setActiveGroupColor(groupColor);
         }
     }, [isInView, sectionId, memberColor, groupColor, setActiveSectionId, setActiveColor, setActiveGroupColor]);
-    
-    // When filters change, reset the carousel to the first card.
-    useEffect(() => {
-        setActiveIndex(0);
-    }, [filteredCards]);
 
-    const finalPrice = useMemo(() => activeCard ? calculateDiscountedPrice(activeCard.price, activeCard.discount) : 0, [activeCard]);
-    const isCardInBasket = useMemo(() => activeCard ? isInBasket(activeCard.docId) : false, [activeCard, isInBasket]);
+    useEffect(() => {
+        // When filtered cards change, reset the active index and update the active card.
+        setActiveIndex(0);
+        setActiveCard(filteredCards[0] || null);
+    }, [filteredCards]);
+    
+    useEffect(() => {
+        // When only the index changes, update the active card.
+        setActiveCard(filteredCards[activeIndex] || null);
+    }, [activeIndex, filteredCards]);
+
+
+    const finalPrice = useMemo(() => {
+        return activeCard ? calculateDiscountedPrice(activeCard.price, activeCard.discount) : 0;
+    }, [activeCard]);
+
+    const isCardInBasket = useMemo(() => {
+        return activeCard ? isInBasket(activeCard.docId) : false;
+    }, [activeCard, isInBasket]);
 
     const handleBasketButtonClick = () => {
         if (!activeCard) return;
@@ -80,46 +102,85 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
     };
     
     const getButtonStyle = () => {
-        if (!activeCard || activeCard.status !== 'available') return { backgroundColor: '#555', cursor: 'not-allowed' };
-        return { backgroundColor: isCardInBasket ? groupColor : memberColor };
+        if (!activeCard) return { backgroundColor: '#555', cursor: 'not-allowed' };
+        if (isCardInBasket) {
+            return { backgroundColor: groupColor };
+        }
+        if (activeCard.status === 'available') {
+            return { backgroundColor: memberColor };
+        }
+        return { backgroundColor: '#555', cursor: 'not-allowed' };
     };
 
     return (
-        <section ref={sectionRef} id={sectionId} className="showcase-section scroll-snap-section member-section-container" style={{'--member-color': memberColor, '--group-color': groupColor}}>
+        <motion.section
+            ref={sectionRef}
+            id={sectionId}
+            className="showcase-section scroll-snap-section member-section-container min-h-screen flex flex-col justify-center items-center p-8 relative overflow-hidden"
+            style={{'--member-color': memberColor, '--group-color': groupColor}}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.8 }}
+        >
             <RoomBackdrop />
 
-            {quote && <motion.div className="member-quote" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.5, delay: 0.5 }}>
-                <span className="quote-mark">“</span>
-                <p dangerouslySetInnerHTML={{ __html: quote.replace(/\n/g, '<br />') }} />
-            </motion.div>}
+            {quote && (
+                 <div className="member-quote absolute top-8 left-8 text-lg italic max-w-sm z-20 text-left" style={{ color: memberColor }}>
+                    <span className="absolute text-8xl -top-8 -left-4 opacity-10 font-playfair-display">“</span>
+                    <p dangerouslySetInnerHTML={{ __html: quote.replace(/\n/g, '<br />') }} />
+                </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full max-w-6xl mx-auto z-10">
-                <div className="card-details-panel">
-                    <motion.p variants={itemVariants} className="card-id-text">{activeCard?.id || 'N/A'}</motion.p>
-                    <motion.h2 variants={itemVariants} className="member-name" style={{ color: memberColor }}>{memberName}</motion.h2>
-                    <motion.p variants={itemVariants} className="group-name" style={{ color: groupColor }}>{groupName}</motion.p>
-                    <motion.p variants={itemVariants} className="album-name">{activeCard?.album || (filteredCards.length === 0 ? 'No matching cards found' : '')}</motion.p>
-                    <motion.p variants={itemVariants} className="version-name">{activeCard?.version || activeCard?.description || ''}</motion.p>
-                    <motion.p variants={itemVariants} className="price-tag" style={{ color: memberColor }}>
+                <div className="card-details-panel text-left">
+                    <p className="card-id-text text-gray-400">{activeCard?.id || 'N/A'}</p>
+                    <h2 className="member-name text-5xl font-extrabold" style={{ color: memberColor }}>{memberName}</h2>
+                    <p className="group-name text-2xl font-medium" style={{ color: groupColor }}>{groupName}</p>
+                    <p className="album-name text-lg mt-6 text-gray-300">{activeCard?.album || (filteredCards.length === 0 ? 'No matching cards found' : '')}</p>
+                    <p className="version-name text-base text-gray-500 min-h-[1.5rem]">{activeCard?.version || activeCard?.description || ''}</p>
+                    <p className="price-tag text-4xl font-black mt-4" style={{ color: memberColor }}>
                         {activeCard ? `€${finalPrice.toFixed(2)}` : ''}
-                    </motion.p>
-                    {activeCard && activeCard.discount > 0 && activeCard.price > finalPrice && <motion.div variants={itemVariants} className="original-price-container">
-                        <span className="line-through">€{activeCard.price.toFixed(2)}</span>
-                    </motion.div>}
-                    <motion.button variants={itemVariants} onClick={handleBasketButtonClick} disabled={!activeCard || (activeCard.status !== 'available' && !isCardInBasket)} className="add-to-basket-main-btn" style={getButtonStyle()} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        {isCardInBasket ? <><FaCheckCircle/> In Basket</> : activeCard?.status !== 'available' ? <span className="capitalize">{activeCard?.status}</span> : <><FaCartPlus/> Add to Basket</>}
-                    </motion.button>
+                    </p>
+                    {activeCard && activeCard.discount > 0 && activeCard.price > finalPrice && (
+                        <div className="original-price-container text-gray-500 text-xl">
+                            <span className="line-through">€{activeCard.price.toFixed(2)}</span>
+                        </div>
+                    )}
+                    <button
+                        onClick={handleBasketButtonClick}
+                        disabled={!activeCard || activeCard.status !== 'available'}
+                        className="mt-6 w-auto px-8 py-3 rounded-full font-bold flex items-center justify-center gap-3 transition-all"
+                        style={getButtonStyle()}
+                    >
+                        {isCardInBasket ? <><FaCheckCircle/> In Basket</>
+                            : activeCard?.status !== 'available' ? <span className="capitalize">{activeCard?.status}</span>
+                            : <><FaCartPlus/> Add to Basket</>
+                        }
+                    </button>
                 </div>
                 <div className="carousel-mask w-full lg:w-[150%] lg:-ml-[25%]">
-                    <Carousel cards={filteredCards} onSlideChange={setActiveIndex} />
+                    <Carousel
+                        cards={filteredCards}
+                        activeIndex={activeIndex}
+                        setActiveIndex={setActiveIndex}
+                    />
                 </div>
             </div>
 
-            {signatureUrl && <motion.div className="member-signature" style={{ maskImage: `url(${signatureUrl})`, WebkitMaskImage: `url(${signatureUrl})`, backgroundColor: memberColor }} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.8 }} transition={{ duration: 0.5, delay: 0.6 }} />}
-            <div className={`scroll-down-arrow ${itemCount > 0 ? 'raised' : ''}`} style={{ color: nextSectionColor }}>
+            {signatureUrl && (
+                <div className="member-signature absolute bottom-8 left-8 w-40 h-28 z-20" style={{
+                    maskImage: `url(${signatureUrl})`, WebkitMaskImage: `url(${signatureUrl})`,
+                    maskSize: 'contain', WebkitMaskSize: 'contain',
+                    maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
+                    backgroundColor: memberColor,
+                }}/>
+            )}
+            
+            <div className={`scroll-down-arrow ${itemCount > 0 ? 'raised' : ''}`} style={{ color: nextSectionColor, transition: 'color 0.5s ease, bottom 0.5s ease' }}>
                 <FaAngleDown size={24} />
             </div>
-        </section>
+        </motion.section>
     );
 };
 
