@@ -60,7 +60,7 @@
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     border-radius: 1rem;
-    overflow: hidden; /* This helps contain elements during flip */
+    overflow: visible; /* MODIFIED: This was 'hidden' and was clipping the reflection. */
 }
 .card-face-back {
     transform: rotateY(180deg);
@@ -92,7 +92,6 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: inherit;
     background-size: cover;
     background-position: center;
     transform: scaleY(-1);

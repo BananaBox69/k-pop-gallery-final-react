@@ -4,15 +4,16 @@ import { calculateDiscountedPrice } from '../../utils/helpers';
 import { FaCheckCircle, FaCartPlus } from 'react-icons/fa';
 
 const CardDetails = ({ activeCard, filteredCards, memberName, groupName, memberColor, groupColor }) => {
-    const { addToBasket, removeFromBasket, isInBasket } = useCart();
+    const { basket, addToBasket, removeFromBasket } = useCart();
 
     const finalPrice = useMemo(() => {
         return activeCard ? calculateDiscountedPrice(activeCard.price, activeCard.discount) : 0;
     }, [activeCard]);
 
+    // MODIFIED: This now directly depends on the 'basket' array for more reliable updates.
     const isCardInBasket = useMemo(() => {
-        return activeCard ? isInBasket(activeCard.docId) : false;
-    }, [activeCard, isInBasket]);
+        return activeCard ? basket.some(item => item.docId === activeCard.docId) : false;
+    }, [activeCard, basket]);
 
     const handleBasketButtonClick = () => {
         if (!activeCard) return;
