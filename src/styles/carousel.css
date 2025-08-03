@@ -1,8 +1,4 @@
 /* --- CAROUSEL IMPROVEMENTS --- */
-/* MODIFIED: Force overflow to be visible on all key Swiper elements */
-.swiper, .swiper-wrapper, .swiper-slide {
-    overflow: visible !important;
-}
 .swiper-slide {
     transform-style: preserve-3d;
 }
