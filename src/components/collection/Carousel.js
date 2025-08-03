@@ -1,131 +1,110 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, useAnimation } from 'framer-motion';
 import Card from './Card';
+import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 
-const CARD_WIDTH = 224;
-const CARD_MARGIN = 32;
-const CARD_SIZE = CARD_WIDTH + CARD_MARGIN;
+const CARD_WIDTH = 224; // width of a single card
+const CARD_MARGIN = 32; // space between cards
+const CARD_TOTAL_WIDTH = CARD_WIDTH + CARD_MARGIN;
 
 const Carousel = ({ cards, onSlideChange }) => {
-    const [activeIndex, setActiveIndex] = useState(0);
-    const x = useMotionValue(0);
-    const containerRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const controls = useAnimation();
 
-    // Calculate the total width of the carousel
-    const carouselWidth = cards.length * CARD_SIZE;
-
-    // --- Center the carousel on the active card ---
-    useEffect(() => {
-        if (!containerRef.current) return;
-        const containerWidth = containerRef.current.offsetWidth;
-        const offset = (containerWidth - CARD_WIDTH) / 2;
-        const targetX = offset - activeIndex * CARD_SIZE;
-        animate(x, targetX, { type: 'spring', stiffness: 300, damping: 30, bounce: 0.1 });
-    }, [activeIndex, x]);
-    
-    // --- Update the active card in the parent component ---
-    useEffect(() => {
-        if (cards[activeIndex]) {
-            onSlideChange(cards[activeIndex]);
-        } else if (cards.length > 0) {
-            // Handle case where activeIndex is out of bounds after filtering
-            setActiveIndex(0);
-            onSlideChange(cards[0]);
-        } else {
-            // No cards
-            onSlideChange(null);
-        }
-    }, [activeIndex, cards, onSlideChange]);
-
-
-    // --- Handle dragging and snapping ---
-    const handleDragEnd = (event, info) => {
-        const velocity = info.velocity.x;
-        const offset = info.offset.x;
-
-        // Determine the next slide based on drag distance and velocity
-        const swipePower = Math.abs(velocity) * 0.1 + Math.abs(offset);
-        if (swipePower < 50) return;
-
-        const direction = offset > 0 ? -1 : 1;
-        setActiveIndex(prev => {
-            const newIndex = prev + direction;
-            return Math.max(0, Math.min(newIndex, cards.length - 1));
-        });
-    };
-    
-    // --- Handle card clicks ---
-    const handleCardClick = (index) => {
-        setActiveIndex(index);
-    }
-    
-    if (!cards || cards.length === 0) {
-        return (
-            <div className="relative w-full h-[460px] flex items-center justify-center">
-                <p className="text-gray-500">No cards match the current filters.</p>
-            </div>
-        );
-    }
-
-    return (
-        <div ref={containerRef} className="carousel-container">
-            <motion.div
-                className="carousel-track"
-                drag="x"
-                onDragEnd={handleDragEnd}
-                style={{ x }}
-                dragConstraints={{
-                    left: -(carouselWidth - CARD_WIDTH / 2),
-                    right: CARD_WIDTH / 2
-                }}
-                dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
-            >
-                {cards.map((card, index) => (
-                    <CarouselItem 
-                        card={card} 
-                        index={index} 
-                        activeIndex={activeIndex} 
-                        x={x}
-                        onClick={handleCardClick}
-                        key={card.docId}
-                    />
-                ))}
-            </motion.div>
-        </div>
-    );
-};
-
-// --- Individual Carousel Item with 3D rotation effect ---
-const CarouselItem = ({ card, index, activeIndex, x, onClick }) => {
-    const-child-ref = useRef(null);
-
-    // Creates a 3D rotation effect based on the card's position
-    const transform = useTransform(x, (latestX) => {
-        if (!childRef.current) return 'none';
-        
-        const itemOffset = childRef.current.offsetLeft;
-        const center = (containerRef.current.offsetWidth / 2) - (CARD_WIDTH / 2);
-        const distance = center - (itemOffset + latestX);
-        const rotateY = distance / 30; // Adjust for more/less rotation
-        const scale = 1 - Math.abs(distance) / 5000; // Adjust for more/less scaling
-        
-        return `perspective(1000px) rotateY(${rotateY}deg) scale(${scale})`;
+  // This effect runs whenever the active card changes.
+  // It tells the carousel track to animate to the correct position.
+  useEffect(() => {
+    onSlideChange(cards[activeIndex] || null);
+    controls.start({
+      x: -activeIndex * CARD_TOTAL_WIDTH,
+      transition: { type: 'spring', stiffness: 300, damping: 40 },
     });
+  }, [activeIndex, cards, onSlideChange, controls]);
 
+  // This handles cases where the card list changes (e.g., due to filtering).
+  // It prevents the carousel from being stuck on an index that no longer exists.
+  useEffect(() => {
+    if (activeIndex >= cards.length && cards.length > 0) {
+      setActiveIndex(cards.length - 1);
+    }
+  }, [cards, activeIndex]);
+
+
+  const goToPrev = () => {
+    setActiveIndex((prev) => (prev > 0 ? prev - 1 : prev));
+  };
+
+  const goToNext = () => {
+    setActiveIndex((prev) => (prev < cards.length - 1 ? prev + 1 : prev));
+  };
+
+  if (!cards || cards.length === 0) {
     return (
-        <motion.div
-            ref={childRef}
-            className="carousel-item"
-            style={{ 
-                transform,
-                zIndex: cards.length - Math.abs(activeIndex - index),
-            }}
-            onClick={() => onClick(index)}
-        >
-            <Card card={card} />
-        </motion.div>
+      <div className="relative w-full h-[460px] flex items-center justify-center">
+        <p className="text-gray-500">No cards match the current filters.</p>
+      </div>
     );
-};
+  }
 
+  return (
+    <div className="carousel-wrapper">
+      <motion.div
+        className="carousel-track"
+        animate={controls}
+        // This allows dragging the carousel
+        drag="x"
+        dragConstraints={{
+          left: -(cards.length - 1) * CARD_TOTAL_WIDTH,
+          right: 0,
+        }}
+        onDragEnd={(event, info) => {
+            const dragDistance = info.offset.x;
+            const velocity = info.velocity.x;
+
+            // A quick drag will trigger a slide change
+            if (Math.abs(velocity) > 200) {
+                if (velocity < 0) {
+                    goToNext();
+                } else {
+                    goToPrev();
+                }
+            } else { // Otherwise, snap based on distance
+                const newIndex = Math.round(Math.abs(dragDistance) / CARD_TOTAL_WIDTH);
+                if (dragDistance < -CARD_TOTAL_WIDTH / 2) {
+                    setActiveIndex(Math.min(activeIndex + newIndex, cards.length - 1));
+                } else if (dragDistance > CARD_TOTAL_WIDTH / 2) {
+                    setActiveIndex(Math.max(activeIndex - newIndex, 0));
+                } else {
+                    // If not dragged far enough, snap back
+                     controls.start({ x: -activeIndex * CARD_TOTAL_WIDTH });
+                }
+            }
+        }}
+      >
+        {cards.map((card) => (
+          <div className="carousel-item" key={card.docId}>
+            <Card card={card} />
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Navigation Buttons */}
+      <button
+        onClick={goToPrev}
+        disabled={activeIndex === 0}
+        className="carousel-button prev"
+      >
+        <FaAngleLeft />
+      </button>
+      <button
+        onClick={goToNext}
+        disabled={activeIndex === cards.length - 1}
+        className="carousel-button next"
+      >
+        <FaAngleRight />
+      </button>
+    </div>
+  );
+};
 
 export default Carousel;

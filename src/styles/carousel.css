@@ -1,33 +1,63 @@
-/* --- CAROUSEL IMPROVEMENTS --- */
+/* --- New Carousel Styles --- */
 
-.carousel-container {
-    position: relative;
-    width: 100%;
-    height: 460px; /* Increased height to accommodate reflection */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden; /* We clip the container, but not the items inside */
-    cursor: grab;
-}
-.carousel-container:active {
-    cursor: grabbing;
+.carousel-wrapper {
+  position: relative;
+  width: 100%;
+  height: 460px; /* This height gives room for the card (320px) + reflection */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* This clips the cards that are off-screen */
 }
 
 .carousel-track {
-    display: flex;
-    align-items: center;
-    height: 320px; /* Height of the card itself */
+  display: flex;
+  position: absolute;
+  left: 50%; /* Start track in the middle */
+  transform: translateX(-112px); /* Offset by half a card width to truly center the first card */
 }
 
 .carousel-item {
-    position: relative;
-    width: 224px; /* Card width */
-    height: 320px; /* Card height */
-    margin-right: 32px; /* Space between cards */
-    flex-shrink: 0;
-    transform-style: preserve-3d;
-    -webkit-tap-highlight-color: transparent; /* Removes blue tap highlight on mobile */
+  width: 224px;
+  height: 320px;
+  margin-right: 32px;
+  flex-shrink: 0;
+  /* This is very important - it allows the reflection to be visible */
+  overflow: visible;
+}
+
+.carousel-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  transition: all 0.2s ease;
+}
+
+.carousel-button:hover:not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.carousel-button.prev {
+  left: 20px;
+}
+
+.carousel-button.next {
+  right: 20px;
 }
 
 /* --- Remove old Swiper styles --- */
@@ -36,5 +66,5 @@
 .swiper-pagination,
 .swiper-pagination-bullet,
 .swiper-pagination-bullet-active {
-    display: none;
+    display: none !important;
 }

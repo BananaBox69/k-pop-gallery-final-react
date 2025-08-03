@@ -22,6 +22,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
     const currentFilters = getFiltersForSection(sectionId);
 
     const filteredCards = useMemo(() => {
+        // If no cards are passed, return an empty array immediately.
         if (!cards || cards.length === 0) {
             return [];
         }
@@ -29,16 +30,20 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
         return cards.filter(card => {
             const { searchTerm, album, version, tags } = currentFilters;
 
+            // Search Term Filter
             if (searchTerm) {
                 const term = searchTerm.toLowerCase();
                 const searchableText = `${card.album || ''} ${card.version || card.description || ''} ${card.id || ''}`.toLowerCase();
                 if (!searchableText.includes(term)) return false;
             }
 
+            // Album Filter
             if (album !== 'All' && card.album !== album) return false;
 
+            // Version Filter
             if (version !== 'All' && (card.version || card.description) !== version) return false;
 
+            // Tags Filter
             if (tags.size > 0) {
                 const isNew = card.dateAdded && (Date.now() - card.dateAdded.getTime()) < 7 * 24 * 60 * 60 * 1000;
                 if (tags.has('new') && !isNew) return false;
@@ -51,6 +56,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
         });
     }, [cards, currentFilters]);
 
+    // This state will now be controlled by the Carousel's `onSlideChange` callback.
     const [activeCard, setActiveCard] = useState(null);
 
     const quote = siteContent.memberQuotes?.[groupName]?.[memberName];
@@ -65,13 +71,14 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
             setActiveGroupColor(groupColor);
         }
     }, [isInView, sectionId, memberColor, groupColor, setActiveSectionId, setActiveColor, setActiveGroupColor]);
-    
-    // Set the first card as active initially
+
     useEffect(() => {
+        // When filtered cards change, update the active card to the first one.
+        // The carousel will then automatically animate to it.
         if (filteredCards.length > 0) {
-            setActiveCard(filteredCards[0]);
+          setActiveCard(filteredCards[0]);
         } else {
-            setActiveCard(null);
+          setActiveCard(null);
         }
     }, [filteredCards]);
     
@@ -104,12 +111,11 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                     memberColor={memberColor}
                     groupColor={groupColor}
                 />
-                <div className="w-full h-[460px] flex items-center justify-center">
-                    <Carousel
-                        cards={filteredCards}
-                        onSlideChange={setActiveCard}
-                    />
-                </div>
+                {/* The old masking div is removed, we just render the Carousel directly */}
+                <Carousel
+                    cards={filteredCards}
+                    onSlideChange={setActiveCard}
+                />
             </div>
 
             {signatureUrl && (
@@ -117,15 +123,3 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                     maskImage: `url(${signatureUrl})`, WebkitMaskImage: `url(${signatureUrl})`,
                     maskSize: 'contain', WebkitMaskSize: 'contain',
                     maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
-                    backgroundColor: memberColor,
-                }}/>
-            )}
-            
-            <div className={`scroll-down-arrow ${itemCount > 0 ? 'raised' : ''}`} style={{ color: nextSectionColor, transition: 'color 0.5s ease, bottom 0.5s ease' }}>
-                <FaAngleDown size={24} />
-            </div>
-        </motion.section>
-    );
-};
-
-export default MemberSection;
