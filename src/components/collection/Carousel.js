@@ -17,7 +17,7 @@ const Carousel = ({ cards, activeIndex, setActiveIndex }) => {
     }
     
     return (
-        <div className="relative w-full h-[460px] pt-12"> {/* Increased top padding */}
+        <div className="relative w-full h-[460px] pt-12">
             <Swiper
                 effect={'coverflow'}
                 grabCursor={true}
@@ -35,10 +35,10 @@ const Carousel = ({ cards, activeIndex, setActiveIndex }) => {
                 onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
                 initialSlide={activeIndex}
                 key={cards.map(c => c.docId).join('-')}
-                className="w-full h-full"
+                className="w-full h-full !overflow-visible" // Added !overflow-visible here
             >
                 {cards.map((card) => (
-                    <SwiperSlide key={card.docId} style={{ width: '224px', height: '320px' }}>
+                    <SwiperSlide key={card.docId} style={{ width: '224px', height: '320px', overflow: 'visible' }}>
                         <Card card={card} />
                     </SwiperSlide>
                 ))}

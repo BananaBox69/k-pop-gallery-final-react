@@ -1,50 +1,20 @@
-import React from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import 'swiper/css/effect-coverflow';
-import 'swiper/css/pagination';
-import { EffectCoverflow, Pagination } from 'swiper/modules';
-import Card from './Card';
-
-const Carousel = ({ cards, activeIndex, setActiveIndex }) => {
-
-    if (!cards || cards.length === 0) {
-        return (
-            <div className="relative w-full h-[460px] flex items-center justify-center">
-                <p className="text-gray-500">No cards match the current filters.</p>
-            </div>
-        );
-    }
-    
-    return (
-        <div className="relative w-full h-[460px] pt-12">
-            <Swiper
-                effect={'coverflow'}
-                grabCursor={true}
-                centeredSlides={true}
-                slidesPerView={'auto'}
-                coverflowEffect={{
-                  rotate: 50,
-                  stretch: 0,
-                  depth: 100,
-                  modifier: 1,
-                  slideShadows: false,
-                }}
-                pagination={{ clickable: true }}
-                modules={[EffectCoverflow, Pagination]}
-                onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
-                initialSlide={activeIndex}
-                key={cards.map(c => c.docId).join('-')}
-                className="w-full h-full !overflow-visible" // Added !overflow-visible here
-            >
-                {cards.map((card) => (
-                    <SwiperSlide key={card.docId} style={{ width: '224px', height: '320px', overflow: 'visible' }}>
-                        <Card card={card} />
-                    </SwiperSlide>
-                ))}
-            </Swiper>
-        </div>
-    );
-};
-
-export default Carousel;
+/* --- CAROUSEL IMPROVEMENTS --- */
+.swiper-slide {
+    transform-style: preserve-3d;
+}
+.carousel-mask {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 25%, black 75%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 25%, black 75%, transparent);
+}
+.swiper-pagination {
+    bottom: 20px !important; /* Move pagination to the bottom */
+    top: auto !important;
+}
+.swiper-pagination-bullet {
+    background-color: #fff !important;
+    opacity: 0.5 !important;
+}
+.swiper-pagination-bullet-active {
+    background-color: var(--dynamic-ui-color) !important;
+    opacity: 1 !important;
+}
