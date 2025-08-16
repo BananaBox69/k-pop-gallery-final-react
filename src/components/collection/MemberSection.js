@@ -86,7 +86,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
         <motion.section
             ref={sectionRef}
             id={sectionId}
-            className="showcase-section scroll-snap-section member-section-container min-h-screen flex flex-col justify-center items-center p-8 relative overflow-hidden"
+            className="showcase-section scroll-snap-section member-section-container min-h-screen flex flex-col justify-center items-center p-8 relative"
             style={{'--member-color': memberColor, '--group-color': groupColor}}
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
