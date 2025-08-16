@@ -102,36 +102,29 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                 </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full max-w-6xl mx-auto z-10">
-                <CardDetails 
-                    activeCard={activeCard}
-                    filteredCards={filteredCards}
-                    memberName={memberName}
-                    groupName={groupName}
-                    memberColor={memberColor}
-                    groupColor={groupColor}
-                />
-                {/* The old masking div is removed, we just render the Carousel directly */}
-                <Carousel
-                    cards={filteredCards}
-                    basket={basket}
-                    onSlideChange={setActiveCard}
-                />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full max-w-6xl mx-auto">
+                <div className="relative z-20">
+                    <CardDetails
+                        activeCard={activeCard}
+                        filteredCards={filteredCards}
+                        memberName={memberName}
+                        groupName={groupName}
+                        memberColor={memberColor}
+                        groupColor={groupColor}
+                    />
+                </div>
+                <div className="relative z-10">
+                    {/* The old masking div is removed, we just render the Carousel directly */}
+                    <Carousel
+                        cards={filteredCards}
+                        onSlideChange={setActiveCard}
+                        basketVersion={basket.length}
+                    />
+                </div>
             </div>
 
             {signatureUrl && (
                 <div className="member-signature absolute bottom-8 left-8 w-40 h-28 z-20" style={{
                     maskImage: `url(${signatureUrl})`, WebkitMaskImage: `url(${signatureUrl})`,
                     maskSize: 'contain', WebkitMaskSize: 'contain',
-                    maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat'
-                }} />
-            )}
-
-            <div className={`scroll-down-arrow ${itemCount > 0 ? 'raised' : ''}`} style={{ color: nextSectionColor || memberColor, transition: 'color 0.5s ease, bottom 0.5s ease' }}>
-                <FaAngleDown size={24} />
-            </div>
-        </motion.section>
-    );
-};
-
-export default MemberSection;
+                    maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
