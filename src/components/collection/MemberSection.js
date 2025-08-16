@@ -113,13 +113,13 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                         groupColor={groupColor}
                     />
                 </div>
-                <div className="relative z-10">
-                    {/* The old masking div is removed, we just render the Carousel directly */}
+                <div className="relative">
                     <Carousel
                         cards={filteredCards}
                         onSlideChange={setActiveCard}
-                        basketVersion={basket.length}
+                        basket={basket}
                     />
+                    <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-r from-velvet-black via-transparent to-velvet-black"></div>
                 </div>
             </div>
 

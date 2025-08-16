@@ -3,32 +3,11 @@
 .carousel-wrapper {
   position: relative;
   width: 100%;
-  height: 550px; /* Increased height for reflection */
+  height: 460px; /* This height gives room for the card (320px) + reflection */
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* This clips the cards that are off-screen */
-}
-
-.carousel-wrapper::before,
-.carousel-wrapper::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 150px; /* Width of the fade */
-  z-index: 20; /* Above cards, below buttons */
-  pointer-events: none; /* Allows clicking through */
-}
-
-.carousel-wrapper::before {
-  left: 0;
-  background: linear-gradient(to right, var(--velvet-black, #121212) 20%, transparent);
-}
-
-.carousel-wrapper::after {
-  right: 0;
-  background: linear-gradient(to left, var(--velvet-black, #121212) 20%, transparent);
+  overflow: visible;
 }
 
 .carousel-track {
