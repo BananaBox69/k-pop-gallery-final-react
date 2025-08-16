@@ -14,7 +14,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
     const { setActiveColor, setActiveGroupColor } = useUI();
     const sectionRef = useRef(null);
     const isInView = useInView(sectionRef, { amount: 0.6, once: false });
-    const { itemCount } = useCart();
+    const { itemCount, basket } = useCart();
 
     const { siteContent, metadata } = useContext(AppContext);
     const { getFiltersForSection, setActiveSectionId } = useFilters();
@@ -86,7 +86,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
         <motion.section
             ref={sectionRef}
             id={sectionId}
-            className="showcase-section scroll-snap-section member-section-container min-h-screen flex flex-col justify-center items-center p-8 relative overflow-hidden"
+            className="showcase-section scroll-snap-section member-section-container min-h-screen flex flex-col justify-center items-center p-8 relative"
             style={{'--member-color': memberColor, '--group-color': groupColor}}
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -115,6 +115,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                 <Carousel
                     cards={filteredCards}
                     onSlideChange={setActiveCard}
+                    basket={basket}
                 />
             </div>
 
@@ -122,4 +123,15 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                 <div className="member-signature absolute bottom-8 left-8 w-40 h-28 z-20" style={{
                     maskImage: `url(${signatureUrl})`, WebkitMaskImage: `url(${signatureUrl})`,
                     maskSize: 'contain', WebkitMaskSize: 'contain',
-                    maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
+                    maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat'
+                }} />
+            )}
+
+            <div className={`scroll-down-arrow ${itemCount > 0 ? 'raised' : ''}`} style={{ color: nextSectionColor || memberColor, transition: 'color 0.5s ease, bottom 0.5s ease' }}>
+                <FaAngleDown size={24} />
+            </div>
+        </motion.section>
+    );
+};
+
+export default MemberSection;
