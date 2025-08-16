@@ -7,13 +7,15 @@ import Sparkles from './Sparkles';
 
 const Card = ({ card }) => {
     const [isFlipped, setIsFlipped] = useState(false);
-    const { addToBasket, removeFromBasket, isInBasket } = useCart();
+    const { basket, addToBasket, removeFromBasket } = useCart();
 
     if (!card) {
         return null;
     }
 
-    const isCardInBasket = isInBasket(card.docId);
+    // By depending on the whole `basket` array, React knows to re-render this
+    // component whenever the basket changes.
+    const isCardInBasket = basket.some(item => item.docId === card.docId);
     const isNew = card.dateAdded && (Date.now() - card.dateAdded.getTime()) < 7 * 24 * 60 * 60 * 1000;
     const { isRare } = card;
 

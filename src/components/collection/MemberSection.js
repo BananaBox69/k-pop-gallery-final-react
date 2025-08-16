@@ -122,4 +122,15 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                 <div className="member-signature absolute bottom-8 left-8 w-40 h-28 z-20" style={{
                     maskImage: `url(${signatureUrl})`, WebkitMaskImage: `url(${signatureUrl})`,
                     maskSize: 'contain', WebkitMaskSize: 'contain',
-                    maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat',
+                    maskRepeat: 'no-repeat', WebkitMaskRepeat: 'no-repeat'
+                }} />
+            )}
+
+            <div className={`scroll-down-arrow ${itemCount > 0 ? 'raised' : ''}`} style={{ color: nextSectionColor || memberColor, transition: 'color 0.5s ease, bottom 0.5s ease' }}>
+                <FaAngleDown size={24} />
+            </div>
+        </motion.section>
+    );
+};
+
+export default MemberSection;
