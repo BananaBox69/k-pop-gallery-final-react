@@ -5,15 +5,15 @@ import { FaHeart } from 'react-icons/fa';
 import { useCart } from '../../context/CartProvider';
 import Sparkles from './Sparkles';
 
-const Card = ({ card, isInBasket }) => {
+const Card = ({ card }) => {
     const [isFlipped, setIsFlipped] = useState(false);
-    const { addToBasket, removeFromBasket } = useCart();
+    const { addToBasket, removeFromBasket, isInBasket } = useCart();
 
     if (!card) {
         return null;
     }
 
-    const isCardInBasket = isInBasket;
+    const isCardInBasket = isInBasket(card.docId);
     const isNew = card.dateAdded && (Date.now() - card.dateAdded.getTime()) < 7 * 24 * 60 * 60 * 1000;
     const { isRare } = card;
 

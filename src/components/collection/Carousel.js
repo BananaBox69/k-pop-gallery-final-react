@@ -7,7 +7,7 @@ const CARD_WIDTH = 224; // width of a single card
 const CARD_MARGIN = 32; // space between cards
 const CARD_TOTAL_WIDTH = CARD_WIDTH + CARD_MARGIN;
 
-const Carousel = ({ cards, onSlideChange, basket }) => {
+const Carousel = ({ cards, onSlideChange }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   // useAnimate provides a ref (`scope`) and an `animate` function
   const [scope, animate] = useAnimate();
@@ -82,14 +82,11 @@ const Carousel = ({ cards, onSlideChange, basket }) => {
         }}
         onDragEnd={handleDragEnd}
       >
-        {cards.map((card) => {
-          const isInBasket = basket ? basket.some(item => item.docId === card.docId) : false;
-          return (
-            <div className="carousel-item" key={card.docId}>
-              <Card card={card} isInBasket={isInBasket} />
-            </div>
-          );
-        })}
+        {cards.map((card) => (
+          <div className="carousel-item" key={card.docId}>
+            <Card card={card} />
+          </div>
+        ))}
       </motion.div>
 
       {/* Navigation Buttons */}
