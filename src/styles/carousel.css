@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* This clips the cards that are off-screen */
+  /* overflow: hidden; */ /* This clips the cards that are off-screen */
 }
 
 .carousel-track {

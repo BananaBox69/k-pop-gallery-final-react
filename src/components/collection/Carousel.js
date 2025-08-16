@@ -7,7 +7,7 @@ const CARD_WIDTH = 224; // width of a single card
 const CARD_MARGIN = 32; // space between cards
 const CARD_TOTAL_WIDTH = CARD_WIDTH + CARD_MARGIN;
 
-const Carousel = ({ cards, onSlideChange }) => {
+const Carousel = ({ cards, basket, onSlideChange }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   // useAnimate provides a ref (`scope`) and an `animate` function
   const [scope, animate] = useAnimate();
@@ -84,7 +84,7 @@ const Carousel = ({ cards, onSlideChange }) => {
       >
         {cards.map((card) => (
           <div className="carousel-item" key={card.docId}>
-            <Card card={card} />
+            <Card card={card} basket={basket} />
           </div>
         ))}
       </motion.div>

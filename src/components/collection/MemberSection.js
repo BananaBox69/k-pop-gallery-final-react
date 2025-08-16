@@ -14,7 +14,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
     const { setActiveColor, setActiveGroupColor } = useUI();
     const sectionRef = useRef(null);
     const isInView = useInView(sectionRef, { amount: 0.6, once: false });
-    const { itemCount } = useCart();
+    const { itemCount, basket } = useCart();
 
     const { siteContent, metadata } = useContext(AppContext);
     const { getFiltersForSection, setActiveSectionId } = useFilters();
@@ -114,6 +114,7 @@ const MemberSection = ({ groupName, memberName, cards, sectionId, nextSectionCol
                 {/* The old masking div is removed, we just render the Carousel directly */}
                 <Carousel
                     cards={filteredCards}
+                    basket={basket}
                     onSlideChange={setActiveCard}
                 />
             </div>

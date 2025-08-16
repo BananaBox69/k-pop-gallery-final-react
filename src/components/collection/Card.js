@@ -5,17 +5,15 @@ import { FaHeart } from 'react-icons/fa';
 import { useCart } from '../../context/CartProvider';
 import Sparkles from './Sparkles';
 
-const Card = ({ card }) => {
+const Card = ({ card, basket }) => {
     const [isFlipped, setIsFlipped] = useState(false);
-    const { basket, addToBasket, removeFromBasket } = useCart();
+    const { addToBasket, removeFromBasket } = useCart();
 
     if (!card) {
         return null;
     }
 
-    // By depending on the whole `basket` array, React knows to re-render this
-    // component whenever the basket changes.
-    const isCardInBasket = basket.some(item => item.docId === card.docId);
+    const isCardInBasket = basket ? basket.some(item => item.docId === card.docId) : false;
     const isNew = card.dateAdded && (Date.now() - card.dateAdded.getTime()) < 7 * 24 * 60 * 60 * 1000;
     const { isRare } = card;
 
